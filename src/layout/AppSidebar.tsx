@@ -238,7 +238,7 @@ const AppSidebar: React.FC = () => {
 
   useEffect(() => {
     // Check if the current path matches any submenu item
-    let submenuMatched = false;
+    // let submenuMatched = false;
     // ["main", "others"].forEach((menuType) => {
     //   const items = menuType === "main" ? navItems : othersItems;
     //   items.forEach((nav, index) => {
@@ -257,9 +257,9 @@ const AppSidebar: React.FC = () => {
     // });
 
     // If no submenu item matches, close the open submenu
-    if (!submenuMatched) {
-      setOpenSubmenu(null);
-    }
+    // if (!submenuMatched) {
+    //   setOpenSubmenu(null);
+    // }
   }, [pathname,isActive]);
 
   useEffect(() => {
