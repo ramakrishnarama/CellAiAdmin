@@ -42,7 +42,9 @@ export default function TwinApex({name, label, value, color }: Props) {
             fontWeight: "600",
             offsetY: 10,
             color: color,
-            formatter: (val) => `${val}%`,
+            formatter: (val) => {
+              return label === "SOC" ? `${val}%` : `${val}`;
+            }          
           },
         },
       },
