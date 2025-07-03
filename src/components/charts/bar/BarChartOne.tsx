@@ -1,72 +1,69 @@
 "use client";
-import React from "react";
-
+import React, { useMemo } from "react";
 import { ApexOptions } from "apexcharts";
-
 import dynamic from "next/dynamic";
-// Dynamically import the ReactApexChart component
+
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
 
+// Generate 10,000 time-series bar data points
+function generateBarTimeSeriesData(count: number, startTime: number): [number, number][] {
+  const data: [number, number][] = [];
+  let currentTime = startTime;
+
+  for (let i = 0; i < count; i++) {
+    const value = Math.floor(Math.random() * 200) + 50; // Random value between 50 and 250
+    data.push([currentTime, value]);
+    currentTime += 60 * 60 * 1000; // 1 hour increment
+  }
+
+  return data;
+}
+
 export default function BarChartOne() {
+  const barData = useMemo(() => generateBarTimeSeriesData(500, new Date().getTime()), []);
+
   const options: ApexOptions = {
-    colors: ["#465fff"],
     chart: {
       fontFamily: "Outfit, sans-serif",
       type: "bar",
-      height: 180,
-      toolbar: {
-        show: false,
-      },
+      height: 300,
+      zoom: { enabled: true },
+      toolbar: { show: true },
     },
+    colors: ["#22C55E"],
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth: "39%",
-        borderRadius: 5,
-        borderRadiusApplication: "end",
+        columnWidth: "50%",
+        borderRadius: 3,
       },
+    },
+    stroke: {
+      show: false,
     },
     dataLabels: {
       enabled: false,
     },
-    stroke: {
-      show: true,
-      width: 4,
-      colors: ["transparent"],
-    },
     xaxis: {
-      categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
-      axisBorder: {
-        show: false,
+      type: "datetime",
+      labels: {
+        rotate: -45,
+        datetimeUTC: false,
       },
-      axisTicks: {
-        show: false,
-      },
-    },
-    legend: {
-      show: true,
-      position: "top",
-      horizontalAlign: "left",
-      fontFamily: "Outfit",
     },
     yaxis: {
-      title: {
-        text: undefined,
+      labels: {
+        style: {
+          fontSize: "12px",
+          colors: ["#6B7280"],
+        },
+      },
+    },
+    tooltip: {
+      x: {
+        format: "dd MMM yyyy HH:mm",
       },
     },
     grid: {
@@ -76,35 +73,18 @@ export default function BarChartOne() {
         },
       },
     },
-    fill: {
-      opacity: 1,
-    },
-
-    tooltip: {
-      x: {
-        show: false,
-      },
-      y: {
-        formatter: (val: number) => `${val}`,
-      },
-    },
   };
+
   const series = [
     {
-      name: "Sales",
-      data: [168, 385, 201, 298, 187, 195, 291, 110, 215, 390, 280, 112],
+      name: "Metric",
+      data: barData,
     },
   ];
+
   return (
-    <div className="max-w-full overflow-x-auto custom-scrollbar">
-      <div id="chartOne" className="min-w-[1000px]">
-        <ReactApexChart
-          options={options}
-          series={series}
-          type="bar"
-          height={180}
-        />
-      </div>
+    <div className="w-full">
+      <ReactApexChart options={options} series={series} type="bar" height={300} />
     </div>
   );
 }

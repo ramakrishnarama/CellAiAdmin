@@ -1,133 +1,67 @@
 "use client";
-import React from "react";
-
+import React, { useMemo } from "react";
 import { ApexOptions } from "apexcharts";
-
 import dynamic from "next/dynamic";
-// Dynamically import the ReactApexChart component
+
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
 
+// Generate 10,000 time-series points
+function generateTimeSeriesData(count: number, startDate: number): [number, number][] {
+  const data: [number, number][] = [];
+  let currentTime = startDate;
+
+  for (let i = 0; i < count; i++) {
+    const value = Math.floor(Math.random() * 100) + 50; // Random value between 50–150
+    data.push([currentTime, value]);
+    currentTime += 60 * 1000; // increment by 1 minute
+  }
+
+  return data;
+}
+
 export default function LineChartOne() {
+  const timeSeries = useMemo(() => generateTimeSeriesData(500, new Date().getTime()), []);
+
   const options: ApexOptions = {
-    legend: {
-      show: false, // Hide legend
-      position: "top",
-      horizontalAlign: "left",
-    },
-    colors: ["#465FFF", "#9CB9FF"], // Define line colors
     chart: {
-      fontFamily: "Outfit, sans-serif",
-      height: 310,
-      type: "line", // Set the chart type to 'line'
-      toolbar: {
-        show: false, // Hide chart toolbar
+      type: "line",
+      height: 300,
+      zoom: { enabled: true },
+      toolbar: { show: true },
+    },
+    xaxis: {
+      type: "datetime",
+      labels: {
+        datetimeUTC: false,
       },
     },
     stroke: {
-      curve: "straight", // Define the line style (straight, smooth, or step)
-      width: [2, 2], // Line width for each dataset
+      curve: "smooth",
+      width: 2,
     },
-
-    fill: {
-      type: "gradient",
-      gradient: {
-        opacityFrom: 0.55,
-        opacityTo: 0,
-      },
-    },
-    markers: {
-      size: 0, // Size of the marker points
-      strokeColors: "#fff", // Marker border color
-      strokeWidth: 2,
-      hover: {
-        size: 6, // Marker size on hover
-      },
-    },
-    grid: {
-      xaxis: {
-        lines: {
-          show: false, // Hide grid lines on x-axis
-        },
-      },
-      yaxis: {
-        lines: {
-          show: true, // Show grid lines on y-axis
-        },
+    tooltip: {
+      x: {
+        format: "dd MMM yyyy HH:mm",
       },
     },
     dataLabels: {
-      enabled: false, // Disable data labels
+      enabled: false,
     },
-    tooltip: {
-      enabled: true, // Enable tooltip
-      x: {
-        format: "dd MMM yyyy", // Format for x-axis tooltip
-      },
-    },
-    xaxis: {
-      type: "category", // Category-based x-axis
-      categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
-      axisBorder: {
-        show: false, // Hide x-axis border
-      },
-      axisTicks: {
-        show: false, // Hide x-axis ticks
-      },
-      tooltip: {
-        enabled: false, // Disable tooltip for x-axis points
-      },
-    },
-    yaxis: {
-      labels: {
-        style: {
-          fontSize: "12px", // Adjust font size for y-axis labels
-          colors: ["#6B7280"], // Color of the labels
-        },
-      },
-      title: {
-        text: "", // Remove y-axis title
-        style: {
-          fontSize: "0px",
-        },
-      },
-    },
+    colors: ["#465fff"],
   };
 
   const series = [
     {
-      name: "Sales",
-      data: [180, 190, 170, 160, 175, 165, 170, 205, 230, 210, 240, 235],
-    },
-    {
-      name: "Revenue",
-      data: [40, 30, 50, 40, 55, 40, 70, 100, 110, 120, 150, 140],
+      name: "Random Metric",
+      data: timeSeries,
     },
   ];
+
   return (
-    <div className="max-w-full overflow-x-auto custom-scrollbar">
-      <div id="chartEight" className="min-w-[1000px]">
-        <ReactApexChart
-          options={options}
-          series={series}
-          type="area"
-          height={310}
-        />
-      </div>
+    <div className="w-full">
+      <ReactApexChart options={options} series={series} type="line" height={300} />
     </div>
   );
 }
