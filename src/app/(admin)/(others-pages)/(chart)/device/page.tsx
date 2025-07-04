@@ -48,6 +48,7 @@ export default function Page() {
       setSubmittedSerial(serial); // ✅ Track successful serial
       setMetrics(data as []);
     } catch (err) {
+      console.log(err);
       setSubmittedSerial(""); // Clear on invalid submit
       setErrorMsg("No data available for this serial number.");
     } finally {
