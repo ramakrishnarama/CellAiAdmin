@@ -31,7 +31,7 @@ const fetchMetrics = async (serial: string) => {
 export default function Page() {
   const [inputSerial, setInputSerial] = useState("");
   const [submittedSerial, setSubmittedSerial] = useState("");
-  const [metrics, setMetrics] = useState<any[]>([]);
+  const [metrics, setMetrics] = useState<[]>([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -46,7 +46,7 @@ export default function Page() {
     try {
       const data = await fetchMetrics(serial);
       setSubmittedSerial(serial); // ✅ Track successful serial
-      setMetrics(data as any[]);
+      setMetrics(data as []);
     } catch (err) {
       setSubmittedSerial(""); // Clear on invalid submit
       setErrorMsg("No data available for this serial number.");
