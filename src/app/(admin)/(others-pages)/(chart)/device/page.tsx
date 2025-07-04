@@ -7,8 +7,16 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import TwinApex from "@/components/ecommerce/TwinApex";
 import LineChartOne from "@/components/charts/line/LineChartOne";
 
+// Define the Metric type
+type Metric = {
+  name: string;
+  label: string;
+  value: number;
+  color: string;
+};
+
 // ✅ Dummy API
-const fetchMetrics = async (serial: string) => {
+const fetchMetrics = async (serial: string): Promise<Metric[]> => {
   console.log("✅ API called for:", serial);
   return new Promise((resolve, reject) => {
     setTimeout(() => {
@@ -31,7 +39,7 @@ const fetchMetrics = async (serial: string) => {
 export default function Page() {
   const [inputSerial, setInputSerial] = useState("");
   const [submittedSerial, setSubmittedSerial] = useState("");
-  const [metrics, setMetrics] = useState<[]>([]);
+  const [metrics, setMetrics] = useState<Metric[]>([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -41,24 +49,18 @@ export default function Page() {
 
     setLoading(true);
     setErrorMsg("");
-    setMetrics([]);
-
     try {
       const data = await fetchMetrics(serial);
       setSubmittedSerial(serial); // ✅ Track successful serial
-      setMetrics(data as []);
+      setMetrics(data);
     } catch (err) {
-      console.log(err);
+      console.error(err);
       setSubmittedSerial(""); // Clear on invalid submit
+      setMetrics([]);
       setErrorMsg("No data available for this serial number.");
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleOnChange = (value: string) => {
-    setInputSerial(value)
-    setMetrics([]);
   };
 
   return (
@@ -68,7 +70,7 @@ export default function Page() {
         <input
           type="text"
           value={inputSerial}
-          onChange={(e) => handleOnChange(e.target.value)}
+          onChange={(e) => setInputSerial(e.target.value)}
           placeholder="Enter Serial Number"
           className="px-3 py-2 border border-gray-300 rounded w-64 text-white bg-gray-800 placeholder-gray-400"
         />
@@ -88,17 +90,16 @@ export default function Page() {
       {!loading && submittedSerial === "ABCTEST" && metrics.length > 0 && (
         <>
           <div className="grid grid-cols-12 gap-4">
-          {metrics.map((metric, idx) => (
-            <div key={idx} className="col-span-6 md:col-span-4 lg:col-span-2">
-              <TwinApex
-                name={metric.name}
-                label={metric.label}
-                value={metric.value}
-                color={metric.color}
-              />
-            </div>
-          ))}
-
+            {metrics.map((metric, idx) => (
+              <div key={idx} className="col-span-6 md:col-span-4 lg:col-span-2">
+                <TwinApex
+                  name={metric.name}
+                  label={metric.label}
+                  value={metric.value}
+                  color={metric.color}
+                />
+              </div>
+            ))}
           </div>
 
           <PageBreadcrumb pageTitle="Charts Overview" />
