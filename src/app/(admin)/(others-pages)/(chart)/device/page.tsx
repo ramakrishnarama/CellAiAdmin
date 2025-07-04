@@ -88,11 +88,17 @@ export default function Page() {
       {!loading && submittedSerial === "ABCTEST" && metrics.length > 0 && (
         <>
           <div className="grid grid-cols-12 gap-4">
-            {metrics.map((metric, idx) => (
-              <div key={idx} className="col-span-6 md:col-span-4 lg:col-span-2">
-                <TwinApex {...metric} />
-              </div>
-            ))}
+          {metrics.map((metric, idx) => (
+            <div key={idx} className="col-span-6 md:col-span-4 lg:col-span-2">
+              <TwinApex
+                name={metric.name}
+                label={metric.label}
+                value={metric.value}
+                color={metric.color}
+              />
+            </div>
+          ))}
+
           </div>
 
           <PageBreadcrumb pageTitle="Charts Overview" />
