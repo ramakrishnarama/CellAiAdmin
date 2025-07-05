@@ -6,6 +6,8 @@ import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import TwinApex from "@/components/ecommerce/TwinApex";
 import LineChartOne from "@/components/charts/line/LineChartOne";
+import LineChartMultiSeries from "@/components/charts/line/LineChartMultiSeries";
+import { getExcelSheet } from "@/lib/api/metrics";
 
 // Define the Metric type
 type Metric = {
@@ -15,13 +17,95 @@ type Metric = {
   color: string;
 };
 
-// ✅ Dummy API
-const fetchMetrics = async (serial: string): Promise<Metric[]> => {
-  console.log("✅ API called for:", serial);
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
+export default function Page() {
+  const [inputSerial, setInputSerial] = useState("");
+  const [submittedSerial, setSubmittedSerial] = useState("");
+  const [metrics, setMetrics] = useState<Metric[]>([]);
+  const [lineChartData, setLineChartData] = useState<[number, number][]>([]);
+  const [currentData, setLineChartDataForCurrent] = useState<[number, number][]>([]);
+  const [motorSpeedData, setMotorSpeedData] = useState<[number, number][]>([]);
+  const [multiLineData, setMultiLineData] = useState<{ name: string; data: [number, number][] }[]>([]);
+  const [colorPalette, setColorPalette] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [ntcSeriesData, setNtcSeriesData] = useState<{ name: string; data: [number, number][] }[]>([]);
+  const [ntcColors, setNtcColors] = useState<string[]>([]);
+  
+  const handleSubmit = async () => {
+    const serial = inputSerial.trim();
+    if (!serial) return;
+
+    setLoading(true);
+    setErrorMsg("");
+
+    try {
+      const json = await getExcelSheet();
+
+      const filteredDataVoltage: [number, number][] = json
+        .filter((item) => item._field === "bms_voltage")
+        .map((item) => [new Date(item._time).getTime(), parseFloat(item._value)])
+        .slice(0, 2000);
+
+      const filteredDataCurrent: [number, number][] = json
+        .filter((item) => item._field === "bms_current")
+        .map((item) => [new Date(item._time).getTime(), parseFloat(item._value)])
+        .slice(0, 2000);
+
+      const motorSpeed: [number, number][] = json
+        .filter((item) => item._field === "motor_speed")
+        .map((item) => [new Date(item._time).getTime(), parseFloat(item._value)])
+        .slice(0, 2000);
+
+      const cellVoltageSeriesMap: Record<string, [number, number][]> = {};
+      json.forEach((item) => {
+        if (/^cell_\d+_voltage$/.test(item._field)) {
+          const timestamp = new Date(item._time).getTime();
+          const value = parseFloat(item._value);
+          if (!cellVoltageSeriesMap[item._field]) {
+            cellVoltageSeriesMap[item._field] = [];
+          }
+          cellVoltageSeriesMap[item._field].push([timestamp, value]);
+        }
+      });
+
+      const limitedSeriesMap = Object.entries(cellVoltageSeriesMap).map(([field, data]) => ({
+        name: field,
+        data: data.slice(0, 2000),
+      }));
+
+      const colors = [
+        "#22C55E", "#06B6D4", "#F97316", "#8B5CF6", "#EF4444", "#EAB308", "#3B82F6", "#0EA5E9",
+        "#EC4899", "#10B981", "#FACC15", "#6366F1", "#14B8A6", "#4ADE80", "#FB923C"
+      ].slice(0, limitedSeriesMap.length);
+
+      // Group NTC series (e.g., ntc_0, ntc_1, ...) by field name
+      const ntcSeriesMap: Record<string, [number, number][]> = {};
+      json.forEach((item) => {
+        if (/^ntc_\d+$/.test(item._field)) {
+          const timestamp = new Date(item._time).getTime();
+          const value = parseFloat(item._value);
+
+          if (!ntcSeriesMap[item._field]) {
+            ntcSeriesMap[item._field] = [];
+          }
+
+          ntcSeriesMap[item._field].push([timestamp, value]);
+        }
+      });
+
+      const limitedNtcSeries = Object.entries(ntcSeriesMap).map(([field, data]) => ({
+        name: field,
+        data: data.slice(0, 2000), // Limit as needed
+      }));
+
+      const ntcColorList = [
+        "#F87171", "#FBBF24", "#34D399", "#60A5FA", "#A78BFA", "#F472B6", "#FCD34D", "#4ADE80"
+      ].slice(0, limitedNtcSeries.length);
+
+
       if (serial === "ABCTEST") {
-        resolve([
+        setSubmittedSerial(serial);
+        setMetrics([
           { name: "State of Charge", label: "SOC", value: 75.55, color: "#465FFF" },
           { name: "Pack Voltage", label: "Volts", value: 82.4, color: "#22C55E" },
           { name: "Pack Temperature", label: "°C", value: 64.1, color: "#F97316" },
@@ -29,34 +113,26 @@ const fetchMetrics = async (serial: string): Promise<Metric[]> => {
           { name: "Motor Speed", label: "RPM", value: 92.7, color: "#8B5CF6" },
           { name: "Motor Temperature", label: "°C", value: 55.2, color: "#EF4444" },
         ]);
+        setLineChartData(filteredDataVoltage);
+        setLineChartDataForCurrent(filteredDataCurrent);
+        setMotorSpeedData(motorSpeed);
+        setMultiLineData(limitedSeriesMap);
+        setColorPalette(colors);
+        setNtcSeriesData(limitedNtcSeries);
+        setNtcColors(ntcColorList);
       } else {
-        reject(new Error("Invalid serial number"));
+        throw new Error("Invalid serial number");
       }
-    }, 1000);
-  });
-};
-
-export default function Page() {
-  const [inputSerial, setInputSerial] = useState("");
-  const [submittedSerial, setSubmittedSerial] = useState("");
-  const [metrics, setMetrics] = useState<Metric[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
-
-  const handleSubmit = async () => {
-    const serial = inputSerial.trim();
-    if (!serial) return;
-
-    setLoading(true);
-    setErrorMsg("");
-    try {
-      const data = await fetchMetrics(serial);
-      setSubmittedSerial(serial); // ✅ Track successful serial
-      setMetrics(data);
     } catch (err) {
       console.error(err);
-      setSubmittedSerial(""); // Clear on invalid submit
+      setSubmittedSerial("");
       setMetrics([]);
+      setLineChartData([]);
+      setMotorSpeedData([]);
+      setMultiLineData([]);
+      setColorPalette([]);
+      setNtcSeriesData([]);
+      setNtcColors([]);
       setErrorMsg("No data available for this serial number.");
     } finally {
       setLoading(false);
@@ -64,8 +140,14 @@ export default function Page() {
   };
 
   const handleOnChange = (value: string) => {
-    setInputSerial(value)
+    setInputSerial(value);
     setMetrics([]);
+    setLineChartData([]);
+    setMotorSpeedData([]);
+    setMultiLineData([]);
+    setColorPalette([]);
+    setNtcSeriesData([]);
+    setNtcColors([]);
   };
 
   return (
@@ -89,7 +171,7 @@ export default function Page() {
 
       {/* Feedback */}
       {loading && <p className="text-white">Loading data...</p>}
-      {errorMsg && <p className="text-red-500">{errorMsg}</p>}
+      {errorMsg && <p className="text-red-2000">{errorMsg}</p>}
 
       {/* Charts */}
       {!loading && submittedSerial === "ABCTEST" && metrics.length > 0 && (
@@ -108,15 +190,49 @@ export default function Page() {
           </div>
 
           <PageBreadcrumb pageTitle="Charts Overview" />
+
           <div className="grid grid-cols-12 gap-6">
             <div className="col-span-12 lg:col-span-6">
-              <ComponentCard title="Line Chart">
-                <LineChartOne />
+              <ComponentCard title="Pack Voltage">
+                <LineChartOne data={lineChartData} color="#465fff" yAxisTitle="Volts" />
               </ComponentCard>
             </div>
             <div className="col-span-12 lg:col-span-6">
-              <ComponentCard title="Bar Chart">
-                <BarChartOne />
+              <ComponentCard title="Pack Current">
+                <LineChartOne data={currentData} color="#22C55E" yAxisTitle="Ampere" />
+              </ComponentCard>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-12 gap-6">
+            <div className="col-span-12 lg:col-span-6">
+              <ComponentCard title="Cell Voltages">
+                <LineChartMultiSeries
+                  series={multiLineData}
+                  colorPalette={colorPalette}
+                  yAxisTitle="Volts"
+                />
+              </ComponentCard>
+            </div>
+            <div className="col-span-12 lg:col-span-6">
+              <ComponentCard title="Temperature Sensors">
+                <LineChartMultiSeries
+                  series={ntcSeriesData}
+                  colorPalette={ntcColors}
+                  yAxisTitle="°Celsius"
+                />
+              </ComponentCard>
+            </div>
+          </div>
+          <div className="grid grid-cols-12 gap-6">
+            <div className="col-span-12 lg:col-span-6">
+              <ComponentCard title="RPM">
+                <LineChartOne data={motorSpeedData} color="#6366F1" yAxisTitle="Volts" />
+              </ComponentCard>
+            </div>
+            <div className="col-span-12 lg:col-span-6">
+              <ComponentCard title="Pack Current">
+                <LineChartOne data={currentData} color="#FB923C" yAxisTitle="Ampere" />
               </ComponentCard>
             </div>
           </div>

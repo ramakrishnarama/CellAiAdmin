@@ -8,17 +8,28 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
 
-type LineChartOneProps = {
-  data: [number, number][];
-  color?: string;
-  yAxisTitle?: string; // <- new prop
+type Series = {
+  name: string;
+  data: { x: number; y: number }[];
 };
 
-export default function LineChartOne({
-  data,
-  color = "#465fff",
-  yAxisTitle = "Value", // <- default label
-}: LineChartOneProps) {
+type MultiLineChartProps = {
+  series: Series[];
+  yAxisTitle?: string;
+  colorPalette?: string[];
+};
+
+export default function LineChartMultiSeries({
+  series,
+  yAxisTitle = "Value",
+  colorPalette,
+}: MultiLineChartProps) {
+  const defaultColors = [
+    "#22C55E", "#06B6D4", "#F97316", "#8B5CF6", "#EF4444",
+    "#EAB308", "#3B82F6", "#0EA5E9", "#EC4899", "#10B981",
+    "#FACC15", "#6366F1", "#14B8A6"
+  ];
+
   const options: ApexOptions = {
     chart: {
       type: "line",
@@ -30,7 +41,10 @@ export default function LineChartOne({
       type: "datetime",
       labels: {
         datetimeUTC: false,
+        style: { colors: "#ccc" },
       },
+      axisBorder: { show: true },
+      axisTicks: { show: true },
     },
     yaxis: {
       title: {
@@ -42,6 +56,7 @@ export default function LineChartOne({
       width: 2,
     },
     tooltip: {
+      shared: true,
       x: {
         format: "dd MMM yyyy HH:mm",
       },
@@ -49,15 +64,18 @@ export default function LineChartOne({
     dataLabels: {
       enabled: false,
     },
-    colors: [color],
-  };
-
-  const series = [
-    {
-      name: yAxisTitle || "Metric", // Label for legend & tooltip
-      data,
+    legend: {
+      show: true,
+      position: "bottom",
+      horizontalAlign: "center",
     },
-  ];
+    colors: colorPalette ?? defaultColors,
+    grid: {
+      xaxis: {
+        lines: { show: false },
+      },
+    },
+  };
 
   return (
     <div className="w-full">
