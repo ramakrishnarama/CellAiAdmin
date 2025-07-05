@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import BarChartOne from "@/components/charts/bar/BarChartOne";
+// import BarChartOne from "@/components/charts/bar/BarChartOne";
 import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import TwinApex from "@/components/ecommerce/TwinApex";
