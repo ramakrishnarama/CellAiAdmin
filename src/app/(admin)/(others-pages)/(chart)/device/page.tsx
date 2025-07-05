@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-// import BarChartOne from "@/components/charts/bar/BarChartOne";
 import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import TwinApex from "@/components/ecommerce/TwinApex";
@@ -9,7 +8,6 @@ import LineChartOne from "@/components/charts/line/LineChartOne";
 import LineChartMultiSeries from "@/components/charts/line/LineChartMultiSeries";
 import { getExcelSheet } from "@/lib/api/metrics";
 
-// Define the Metric type
 type Metric = {
   name: string;
   label: string;
@@ -24,13 +22,13 @@ export default function Page() {
   const [lineChartData, setLineChartData] = useState<[number, number][]>([]);
   const [currentData, setLineChartDataForCurrent] = useState<[number, number][]>([]);
   const [motorSpeedData, setMotorSpeedData] = useState<[number, number][]>([]);
-  const [multiLineData, setMultiLineData] = useState<{ name: string; data: [number, number][] }[]>([]);
+  const [multiLineData, setMultiLineData] = useState<{ name: string; data: { x: number; y: number }[] }[]>([]);
   const [colorPalette, setColorPalette] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const [ntcSeriesData, setNtcSeriesData] = useState<{ name: string; data: [number, number][] }[]>([]);
+  const [ntcSeriesData, setNtcSeriesData] = useState<{ name: string; data: { x: number; y: number }[] }[]>([]);
   const [ntcColors, setNtcColors] = useState<string[]>([]);
-  
+
   const handleSubmit = async () => {
     const serial = inputSerial.trim();
     if (!serial) return;
@@ -41,36 +39,29 @@ export default function Page() {
     try {
       const json = await getExcelSheet();
 
-      const filteredDataVoltage: [number, number][] = json
-        .filter((item) => item._field === "bms_voltage")
-        .map((item) => [new Date(item._time).getTime(), parseFloat(item._value)])
-        .slice(0, 2000);
+      const parseData = (field: string): [number, number][] =>
+        json
+          .filter(item => item._field === field && item._time && item._value)
+          .map(item => [new Date(item._time).getTime(), parseFloat(item._value)] as [number, number])
+          .slice(0, 2000);
 
-      const filteredDataCurrent: [number, number][] = json
-        .filter((item) => item._field === "bms_current")
-        .map((item) => [new Date(item._time).getTime(), parseFloat(item._value)])
-        .slice(0, 2000);
-
-      const motorSpeed: [number, number][] = json
-        .filter((item) => item._field === "motor_speed")
-        .map((item) => [new Date(item._time).getTime(), parseFloat(item._value)])
-        .slice(0, 2000);
+      const filteredDataVoltage = parseData("bms_voltage");
+      const filteredDataCurrent = parseData("bms_current");
+      const motorSpeed = parseData("motor_speed");
 
       const cellVoltageSeriesMap: Record<string, [number, number][]> = {};
-      json.forEach((item) => {
-        if (/^cell_\d+_voltage$/.test(item._field)) {
+      json.forEach(item => {
+        if (/^cell_\d+_voltage$/.test(item._field) && item._time && item._value) {
           const timestamp = new Date(item._time).getTime();
           const value = parseFloat(item._value);
-          if (!cellVoltageSeriesMap[item._field]) {
-            cellVoltageSeriesMap[item._field] = [];
-          }
+          if (!cellVoltageSeriesMap[item._field]) cellVoltageSeriesMap[item._field] = [];
           cellVoltageSeriesMap[item._field].push([timestamp, value]);
         }
       });
 
       const limitedSeriesMap = Object.entries(cellVoltageSeriesMap).map(([field, data]) => ({
         name: field,
-        data: data.slice(0, 2000),
+        data: data.slice(0, 2000).map(([x, y]) => ({ x, y })),
       }));
 
       const colors = [
@@ -78,30 +69,24 @@ export default function Page() {
         "#EC4899", "#10B981", "#FACC15", "#6366F1", "#14B8A6", "#4ADE80", "#FB923C"
       ].slice(0, limitedSeriesMap.length);
 
-      // Group NTC series (e.g., ntc_0, ntc_1, ...) by field name
       const ntcSeriesMap: Record<string, [number, number][]> = {};
-      json.forEach((item) => {
-        if (/^ntc_\d+$/.test(item._field)) {
+      json.forEach(item => {
+        if (/^ntc_\d+$/.test(item._field) && item._time && item._value) {
           const timestamp = new Date(item._time).getTime();
           const value = parseFloat(item._value);
-
-          if (!ntcSeriesMap[item._field]) {
-            ntcSeriesMap[item._field] = [];
-          }
-
+          if (!ntcSeriesMap[item._field]) ntcSeriesMap[item._field] = [];
           ntcSeriesMap[item._field].push([timestamp, value]);
         }
       });
 
       const limitedNtcSeries = Object.entries(ntcSeriesMap).map(([field, data]) => ({
         name: field,
-        data: data.slice(0, 2000), // Limit as needed
+        data: data.slice(0, 2000).map(([x, y]) => ({ x, y })),
       }));
 
       const ntcColorList = [
         "#F87171", "#FBBF24", "#34D399", "#60A5FA", "#A78BFA", "#F472B6", "#FCD34D", "#4ADE80"
       ].slice(0, limitedNtcSeries.length);
-
 
       if (serial === "ABCTEST") {
         setSubmittedSerial(serial);
@@ -152,7 +137,6 @@ export default function Page() {
 
   return (
     <div className="space-y-6">
-      {/* Input */}
       <div className="flex items-center gap-2 mb-6">
         <input
           type="text"
@@ -169,11 +153,9 @@ export default function Page() {
         </button>
       </div>
 
-      {/* Feedback */}
       {loading && <p className="text-white">Loading data...</p>}
-      {errorMsg && <p className="text-red-2000">{errorMsg}</p>}
+      {errorMsg && <p className="text-red-200">{errorMsg}</p>}
 
-      {/* Charts */}
       {!loading && submittedSerial === "ABCTEST" && metrics.length > 0 && (
         <>
           <div className="grid grid-cols-12 gap-4">
@@ -224,6 +206,7 @@ export default function Page() {
               </ComponentCard>
             </div>
           </div>
+
           <div className="grid grid-cols-12 gap-6">
             <div className="col-span-12 lg:col-span-6">
               <ComponentCard title="RPM">
