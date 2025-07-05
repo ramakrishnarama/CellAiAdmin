@@ -7,6 +7,8 @@ import TwinApex from "@/components/ecommerce/TwinApex";
 import LineChartOne from "@/components/charts/line/LineChartOne";
 import LineChartMultiSeries from "@/components/charts/line/LineChartMultiSeries";
 import { getExcelSheet } from "@/lib/api/metrics";
+import DatePicker from "react-datepicker"; // install via: npm i react-datepicker
+import "react-datepicker/dist/react-datepicker.css";
 
 type Metric = {
   name: string;
@@ -29,6 +31,10 @@ export default function Page() {
   const [ntcSeriesData, setNtcSeriesData] = useState<{ name: string; data: { x: number; y: number }[] }[]>([]);
   const [ntcColors, setNtcColors] = useState<string[]>([]);
 
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [liveMode, setLiveMode] = useState<boolean>(false);
+
   const handleSubmit = async () => {
     const serial = inputSerial.trim();
     if (!serial) return;
@@ -37,8 +43,13 @@ export default function Page() {
     setErrorMsg("");
 
     try {
-      const json = await getExcelSheet();
+      // const json = await getExcelSheet();
+      // In your handleSubmit:
+      const json = await getExcelSheet({ startDate, endDate, live: liveMode });
 
+      if(!json || json.length == 0){
+        throw new Error("No data");
+      }
       const parseData = (field: string): [number, number][] =>
         json
           .filter(item => item._field === field && item._time && item._value)
@@ -137,14 +148,40 @@ export default function Page() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2 mb-6">
-        <input
+      <div className="flex items-center gap-2 mb-6">        
+      <input
           type="text"
           value={inputSerial}
           onChange={(e) => handleOnChange(e.target.value)}
           placeholder="Enter Serial Number"
-          className="px-3 py-2 border border-gray-300 rounded w-64 text-white bg-gray-800 placeholder-gray-400"
+          className="px-3 py-2 border border-gray-300 rounded text-white bg-gray-800 placeholder-gray-400 w-64"
         />
+
+        <DatePicker
+          selected={startDate}
+          onChange={(date) => setStartDate(date)}
+          placeholderText="Start Date"
+          className="px-3 py-2 border border-gray-300 rounded text-white bg-gray-800 placeholder-gray-400"
+          dateFormat="yyyy-MM-dd"
+        />
+
+        <DatePicker
+          selected={endDate}
+          onChange={(date) => setEndDate(date)}
+          placeholderText="End Date"
+          className="px-3 py-2 border border-gray-300 rounded text-white bg-gray-800 placeholder-gray-400"
+          dateFormat="yyyy-MM-dd"
+        />
+
+        <label className="flex items-center gap-2 text-white">
+          <input
+            type="checkbox"
+            checked={liveMode}
+            onChange={() => setLiveMode(!liveMode)}
+          />
+          Live Sync
+        </label>
+
         <button
           onClick={handleSubmit}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
