@@ -6,6 +6,7 @@
 /.pnp
 .pnp.js
 .yarn/install-state.gz
+public/images/excel/data.json
 
 # testing
 /coverage
