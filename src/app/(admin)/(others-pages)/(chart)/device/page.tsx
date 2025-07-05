@@ -148,47 +148,38 @@ export default function Page() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2 mb-6">        
+    <div className="flex flex-col md:flex-row md:items-center gap-3 mb-6">
       <input
-          type="text"
-          value={inputSerial}
-          onChange={(e) => handleOnChange(e.target.value)}
-          placeholder="Enter Serial Number"
-          className="px-3 py-2 border border-gray-300 rounded text-white bg-gray-800 placeholder-gray-400 w-64"
-        />
+        type="text"
+        value={inputSerial}
+        onChange={(e) => handleOnChange(e.target.value)}
+        placeholder="Enter Serial Number"
+        className="px-3 py-2 border border-gray-300 rounded text-white bg-gray-800 placeholder-gray-400 w-full md:w-64"
+      />
 
-        <DatePicker
-          selected={startDate}
-          onChange={(date) => setStartDate(date)}
-          placeholderText="Start Date"
-          className="px-3 py-2 border border-gray-300 rounded text-white bg-gray-800 placeholder-gray-400"
-          dateFormat="yyyy-MM-dd"
-        />
+      <DatePicker
+        selected={startDate}
+        onChange={(date) => setStartDate(date)}
+        placeholderText="Start Date"
+        className="px-3 py-2 border border-gray-300 rounded text-white bg-gray-800 placeholder-gray-400 w-full md:w-auto"
+        dateFormat="yyyy-MM-dd"
+      />
 
-        <DatePicker
-          selected={endDate}
-          onChange={(date) => setEndDate(date)}
-          placeholderText="End Date"
-          className="px-3 py-2 border border-gray-300 rounded text-white bg-gray-800 placeholder-gray-400"
-          dateFormat="yyyy-MM-dd"
-        />
+      <DatePicker
+        selected={endDate}
+        onChange={(date) => setEndDate(date)}
+        placeholderText="End Date"
+        className="px-3 py-2 border border-gray-300 rounded text-white bg-gray-800 placeholder-gray-400 w-full md:w-auto"
+        dateFormat="yyyy-MM-dd"
+      />
 
-        {/* <label className="flex items-center gap-2 text-white">
-          <input
-            type="checkbox"
-            checked={liveMode}
-            onChange={() => setLiveMode(!liveMode)}
-          />
-          Live Sync
-        </label> */}
-
-        <button
-          onClick={handleSubmit}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Submit
-        </button>
-      </div>
+      <button
+        onClick={handleSubmit}
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full md:w-auto"
+      >
+        Submit
+      </button>
+    </div>
 
       {loading && <p className="text-white">Loading data...</p>}
       {errorMsg && <p className="text-red-200">{errorMsg}</p>}
