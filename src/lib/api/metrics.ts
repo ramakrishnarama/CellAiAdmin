@@ -25,11 +25,9 @@ export async function postMetric(data: unknown) {
 export async function getExcelSheet({
   startDate,
   endDate,
-  live
 }: {
   startDate?: Date | null;
   endDate?: Date | null;
-  live?: Boolean | null;
 } = {}): Promise<ExcelRow[]> {
   const res = await fetch("/images/excel/data.json");
   if (!res.ok) throw new Error("Failed to fetch JSON");

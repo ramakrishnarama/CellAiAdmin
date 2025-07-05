@@ -33,7 +33,7 @@ export default function Page() {
 
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
-  const [liveMode, setLiveMode] = useState<boolean>(false);
+  // const [liveMode, setLiveMode] = useState<boolean>(false);
 
   const handleSubmit = async () => {
     const serial = inputSerial.trim();
@@ -45,7 +45,7 @@ export default function Page() {
     try {
       // const json = await getExcelSheet();
       // In your handleSubmit:
-      const json = await getExcelSheet({ startDate, endDate, live: liveMode });
+      const json = await getExcelSheet({ startDate, endDate });
 
       if(!json || json.length == 0){
         throw new Error("No data");
@@ -173,14 +173,14 @@ export default function Page() {
           dateFormat="yyyy-MM-dd"
         />
 
-        <label className="flex items-center gap-2 text-white">
+        {/* <label className="flex items-center gap-2 text-white">
           <input
             type="checkbox"
             checked={liveMode}
             onChange={() => setLiveMode(!liveMode)}
           />
           Live Sync
-        </label>
+        </label> */}
 
         <button
           onClick={handleSubmit}
