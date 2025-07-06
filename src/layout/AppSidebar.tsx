@@ -318,23 +318,20 @@ const AppSidebar: React.FC = () => {
         <Link href="/">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
-            <h2 className="text-white text-xl font-bold">
-              CellAI Analytics
-            </h2>
-              {/* <Image
+              <Image
                 className="dark:hidden"
-                src="/images/logo/logo.svg"
+                src="/images/logo/cellAi.svg"
                 alt="Logo"
                 width={150}
                 height={40}
               />
               <Image
                 className="hidden dark:block"
-                src="/images/logo/logo-dark.svg"
+                src="/images/logo/cellAi.svg"
                 alt="Logo"
                 width={150}
                 height={40}
-              /> */}
+              />
             </>
           ) : (
             <Image
