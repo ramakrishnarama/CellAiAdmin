@@ -20,7 +20,7 @@ type Metric = {
 
 export default function Page() {
   const [inputSerial, setInputSerial] = useState("");
-  const [submittedSerial, setSubmittedSerial] = useState("");
+  // const [submittedSerial, setSubmittedSerial] = useState("");
   const [metrics, setMetrics] = useState<Metric[]>([]);
   const [lineChartData, setLineChartData] = useState<[number, number][]>([]);
   const [currentData, setLineChartDataForCurrent] = useState<[number, number][]>([]);
@@ -29,8 +29,8 @@ export default function Page() {
   const [colorPalette, setColorPalette] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const [ntcSeriesData, setNtcSeriesData] = useState<{ name: string; data: { x: number; y: number }[] }[]>([]);
-  const [ntcColors, setNtcColors] = useState<string[]>([]);
+  // const [ntcSeriesData, setNtcSeriesData] = useState<{ name: string; data: { x: number; y: number }[] }[]>([]);
+  // const [ntcColors, setNtcColors] = useState<string[]>([]);
 
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
@@ -230,7 +230,7 @@ export default function Page() {
       ].slice(0, limitedNtcSeries.length);
   
       // 📊 Set Metrics
-      setSubmittedSerial(serial);
+      // setSubmittedSerial(serial);
       setMetrics([
         { name: "State of Charge", label: "SOC", value: json[0].socPercent, color: "#465FFF" },
         { name: "Pack Voltage", label: "Volts", value: json[0].batVolt, color: "#22C55E" },
@@ -248,20 +248,20 @@ export default function Page() {
       setMotorSpeedData(motorSpeed);
       setMultiLineData(limitedSeriesMap);
       setColorPalette(colors);
-      setNtcSeriesData(limitedNtcSeries);
-      setNtcColors(ntcColorList);
+      // setNtcSeriesData(limitedNtcSeries);
+      // setNtcColors(ntcColorList);
   
     } catch (err) {
       console.error(err);
-      setSubmittedSerial("");
+      // setSubmittedSerial("");
       setMetrics([]);
       setLineChartData([]);
       setLineChartDataForCurrent([]);
       setMotorSpeedData([]);
       setMultiLineData([]);
       setColorPalette([]);
-      setNtcSeriesData([]);
-      setNtcColors([]);
+      // setNtcSeriesData([]);
+      // setNtcColors([]);
       setErrorMsg("No data available for this serial number.");
     } finally {
       setLoading(false);
@@ -276,8 +276,8 @@ export default function Page() {
     setMotorSpeedData([]);
     setMultiLineData([]);
     setColorPalette([]);
-    setNtcSeriesData([]);
-    setNtcColors([]);
+    // setNtcSeriesData([]);
+    // setNtcColors([]);
   };
 
   return (
