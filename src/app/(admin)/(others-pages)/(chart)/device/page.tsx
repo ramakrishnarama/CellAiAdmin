@@ -1,15 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import moment from "moment";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
 import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import TwinApex from "@/components/ecommerce/TwinApex";
 import LineChartOne from "@/components/charts/line/LineChartOne";
 import LineChartMultiSeries from "@/components/charts/line/LineChartMultiSeries";
 import { getExcelSheet } from "@/lib/api/metrics";
-import DatePicker from "react-datepicker"; // install via: npm i react-datepicker
-import "react-datepicker/dist/react-datepicker.css";
-import moment from "moment";
 
 type Metric = {
   name: string;
@@ -18,9 +19,13 @@ type Metric = {
   color: string;
 };
 
+interface DataItem {
+  ISTserverTimeStamp: string;
+  [key: string]: any;
+}
+
 export default function Page() {
   const [inputSerial, setInputSerial] = useState("");
-  // const [submittedSerial, setSubmittedSerial] = useState("");
   const [metrics, setMetrics] = useState<Metric[]>([]);
   const [lineChartData, setLineChartData] = useState<[number, number][]>([]);
   const [currentData, setLineChartDataForCurrent] = useState<[number, number][]>([]);
@@ -29,161 +34,40 @@ export default function Page() {
   const [colorPalette, setColorPalette] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  // const [ntcSeriesData, setNtcSeriesData] = useState<{ name: string; data: { x: number; y: number }[] }[]>([]);
-  // const [ntcColors, setNtcColors] = useState<string[]>([]);
-
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
-  // const [liveMode, setLiveMode] = useState<boolean>(false);
 
-  // const handleSubmit = async () => {
-  //   const serial = inputSerial.trim();
-  //   if (!serial) return;
+  const toTimestamp = (item: DataItem): number => {
+    const dateTimeString = item.ISTserverTimeStamp;
+    const parsed = moment(dateTimeString, "M/D/YY HH:mm", true);
+    return parsed.isValid() ? parsed.valueOf() : 0;
+  };
 
-  //   setLoading(true);
-  //   setErrorMsg("");
+  const extractSeries = (json: DataItem[], field: string) =>
+    json
+      .filter(item => item[field] !== undefined)
+      .map(item => [
+        toTimestamp(item),
+        parseFloat(item[field]?.toString() ?? "0"),
+      ] as [number, number])
+      .slice(0, 2000);
 
-  //   try {
-  //     // const json = await getExcelSheet();
-  //     // In your handleSubmit:
-  //     const json = await getExcelSheet({ startDate, endDate, serial });
-
-  //     if(!json || json.length == 0){
-  //       throw new Error("No data");
-  //     }
-  //     const parseData = (field: string): [number, number][] =>
-  //       json
-  //         .filter(item => item._field === field && item._time && item._value)
-  //         .map(item => [new Date(item._time).getTime(), parseFloat(item._value)] as [number, number])
-  //         .slice(0, 2000);
-
-  //     // const filteredDataVoltage = parseData("bms_voltage");
-  //     // const filteredDataCurrent = parseData("bms_current");
-  //     // const motorSpeed = parseData("motor_speed");
-
-  //     const filteredDataVoltage = parseData("batVolt");
-  //     const filteredDataCurrent = parseData("batCurrent");
-  //     const motorSpeed = parseData("speed");
-
-  //     const cellVoltageSeriesMap: Record<string, [number, number][]> = {};
-  //     json.forEach(item => {
-  //       // cell1Volt
-  //       // if (/^cell_\d+_voltage$/.test(item._field) && item._time && item._value) {
-  //       if (/^cell\d+Volt$/.test(item._field) && item._time && item._value) {
-  //         const timestamp = new Date(item._time).getTime();
-  //         const value = parseFloat(item._value);
-  //         if (!cellVoltageSeriesMap[item._field]) cellVoltageSeriesMap[item._field] = [];
-  //         cellVoltageSeriesMap[item._field].push([timestamp, value]);
-  //       }
-  //     });
-
-  //     const limitedSeriesMap = Object.entries(cellVoltageSeriesMap).map(([field, data]) => ({
-  //       name: field,
-  //       data: data.slice(0, 2000).map(([x, y]) => ({ x, y })),
-  //     }));
-
-  //     const colors = [
-  //       "#22C55E", "#06B6D4", "#F97316", "#8B5CF6", "#EF4444", "#EAB308", "#3B82F6", "#0EA5E9",
-  //       "#EC4899", "#10B981", "#FACC15", "#6366F1", "#14B8A6", "#4ADE80", "#FB923C"
-  //     ].slice(0, limitedSeriesMap.length);
-
-  //     const ntcSeriesMap: Record<string, [number, number][]> = {};
-  //     json.forEach(item => {
-  //       if (/^ntc_\d+$/.test(item._field) && item._time && item._value) {
-  //         const timestamp = new Date(item._time).getTime();
-  //         const value = parseFloat(item._value);
-  //         if (!ntcSeriesMap[item._field]) ntcSeriesMap[item._field] = [];
-  //         ntcSeriesMap[item._field].push([timestamp, value]);
-  //       }
-  //     });
-
-  //     const limitedNtcSeries = Object.entries(ntcSeriesMap).map(([field, data]) => ({
-  //       name: field,
-  //       data: data.slice(0, 2000).map(([x, y]) => ({ x, y })),
-  //     }));
-
-  //     const ntcColorList = [
-  //       "#F87171", "#FBBF24", "#34D399", "#60A5FA", "#A78BFA", "#F472B6", "#FCD34D", "#4ADE80"
-  //     ].slice(0, limitedNtcSeries.length);
-
-  //     // if (serial === "ABCTEST") {
-  //       setSubmittedSerial(serial);
-  //       setMetrics([
-  //         { name: "State of Charge", label: "SOC", value: 75.55, color: "#465FFF" },
-  //         { name: "Pack Voltage", label: "Volts", value: 82.4, color: "#22C55E" },
-  //         { name: "Pack Temperature", label: "°C", value: 64.1, color: "#F97316" },
-  //         { name: "Pack Current", label: "Amperes", value: 48.3, color: "#06B6D4" },
-  //         { name: "Motor Speed", label: "RPM", value: 92.7, color: "#8B5CF6" },
-  //         { name: "Motor Temperature", label: "°C", value: 55.2, color: "#EF4444" },
-  //       ]);
-  //       setLineChartData(filteredDataVoltage);
-  //       setLineChartDataForCurrent(filteredDataCurrent);
-  //       setMotorSpeedData(motorSpeed);
-  //       setMultiLineData(limitedSeriesMap);
-  //       setColorPalette(colors);
-  //       setNtcSeriesData(limitedNtcSeries);
-  //       setNtcColors(ntcColorList);
-  //     // } else {
-  //     //   throw new Error("Invalid serial number");
-  //     // }
-  //   } catch (err) {
-  //     console.error(err);
-  //     setSubmittedSerial("");
-  //     setMetrics([]);
-  //     setLineChartData([]);
-  //     setMotorSpeedData([]);
-  //     setMultiLineData([]);
-  //     setColorPalette([]);
-  //     setNtcSeriesData([]);
-  //     setNtcColors([]);
-  //     setErrorMsg("No data available for this serial number.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   const handleSubmit = async () => {
     const serial = inputSerial.trim();
     if (!serial) return;
-  
+
     setLoading(true);
     setErrorMsg("");
-  
+
     try {
-      const json = await getExcelSheet({ startDate, endDate, serial });
-  
-      if (!json || json.length === 0) {
-        throw new Error("No data");
-      }
-  
-      // const toTimestamp = (item: any): number => {
-      //   const [day, month, year] = item.date.split("-");
-      //   return new Date(`${year}-${month}-${day}T${item.time}`).getTime();
-      // };
-      interface DataItem {
-        ISTserverTimeStamp: string;
-        [key: string]: string | number | undefined;
+      const json: DataItem[] = await getExcelSheet({ startDate, endDate, serial });
 
-      }
-      const toTimestamp = (item: DataItem): number => {
-        const dateTimeString = item.ISTserverTimeStamp;
-        const parsed = moment(dateTimeString, "M/D/YY HH:mm", true);
-        return parsed.isValid() ? parsed.valueOf() : 0;
-      };
+      if (!json || json.length === 0) throw new Error("No data");
 
-      const extractSeries = (field: keyof DataItem) =>
-        json
-          .filter(item => item[field] !== undefined)
-          .map(item => [
-            toTimestamp(item),
-            parseFloat(item[field]?.toString() ?? "0"),
-          ])
-          .slice(0, 2000);
-  
-      const filteredDataVoltage = extractSeries("batVolt");
-      const filteredDataCurrent = extractSeries("batCurrent");
-      const motorSpeed = extractSeries("speed");
-  
-      // 📊 Extract Cell Voltages (cell1Volt to cell16Volt)
+      const filteredDataVoltage = extractSeries(json, "batVolt");
+      const filteredDataCurrent = extractSeries(json, "batCurrent");
+      const motorSpeed = extractSeries(json, "speed");
+
       const cellVoltageSeriesMap: Record<string, { x: number; y: number }[]> = {};
       for (let i = 1; i <= 16; i++) {
         const field = `cell${i}Volt`;
@@ -191,51 +75,24 @@ export default function Page() {
           .filter(item => item[field] !== undefined)
           .map(item => ({
             x: toTimestamp(item),
-            y: parseFloat(item[field]),
+            y: parseFloat(item[field]?.toString() ?? "0"),
           }))
           .slice(0, 2000);
         if (series.length > 0) {
           cellVoltageSeriesMap[field] = series;
         }
       }
-  
+
       const limitedSeriesMap = Object.entries(cellVoltageSeriesMap).map(([field, data]) => ({
         name: field,
         data,
       }));
-  
+
       const colors = [
         "#22C55E", "#06B6D4", "#F97316", "#8B5CF6", "#EF4444", "#EAB308", "#3B82F6", "#0EA5E9",
         "#EC4899", "#10B981", "#FACC15", "#6366F1", "#14B8A6", "#4ADE80", "#FB923C", "#F472B6"
       ].slice(0, limitedSeriesMap.length);
-  
-      // ✅ Extract batTemp1, batTemp2, ..., batTempN
-      const batTempSeriesMap: Record<string, { x: number; y: number }[]> = {};
-      json.forEach(item => {
-        const timestamp = toTimestamp(item);
-        Object.keys(item).forEach(key => {
-          if (/^batTemp\d+$/.test(key)) {
-            const y = parseFloat(item[key]);
-            if (!isNaN(y)) {
-              if (!batTempSeriesMap[key]) batTempSeriesMap[key] = [];
-              batTempSeriesMap[key].push({ x: timestamp, y });
-            }
-          }
-        });
-      });
-  
-      // const limitedNtcSeries = Object.entries(batTempSeriesMap).map(([field, data]) => ({
-      //   name: field,
-      //   data: data.slice(0, 2000),
-      // }));
-  
-      // const ntcColorList = [
-      //   "#F87171", "#FBBF24", "#34D399", "#60A5FA", "#A78BFA", "#F472B6", "#FCD34D", "#4ADE80",
-      //   "#818CF8", "#FACC15", "#10B981", "#FB7185", "#0EA5E9", "#8B5CF6"
-      // ].slice(0, limitedNtcSeries.length);
-  
-      // 📊 Set Metrics
-      // setSubmittedSerial(serial);
+
       setMetrics([
         { name: "State of Charge", label: "SOC", value: json[0].socPercent, color: "#465FFF" },
         { name: "Pack Voltage", label: "Volts", value: json[0].batVolt, color: "#22C55E" },
@@ -243,82 +100,73 @@ export default function Page() {
         { name: "Pack Current", label: "Amperes", value: json[0].batCurrent, color: "#06B6D4" },
         { name: "Motor Speed", label: "kmph", value: json[0].speed, color: "#8B5CF6" },
         { name: "Max Cell Temp", label: "°C", value: json[0].batTemp, color: "#EF4444" },
-        { name: "Odometer", label: "°C", value: json[0].odo, color: "#EF4444" },
-        { name: "Discharge Cycle", label: "°C", value: json[0].dischargeCycle, color: "#EF4444" },
+        { name: "Odometer", label: "km", value: json[0].odo, color: "#EF4444" },
+        { name: "Discharge Cycle", label: "count", value: json[0].dischargeCycle, color: "#EF4444" },
       ]);
-  
-      // ✅ Update UI Data
+
       setLineChartData(filteredDataVoltage);
       setLineChartDataForCurrent(filteredDataCurrent);
       setMotorSpeedData(motorSpeed);
       setMultiLineData(limitedSeriesMap);
       setColorPalette(colors);
-      // setNtcSeriesData(limitedNtcSeries);
-      // setNtcColors(ntcColorList);
-  
     } catch (err) {
       console.error(err);
-      // setSubmittedSerial("");
       setMetrics([]);
       setLineChartData([]);
       setLineChartDataForCurrent([]);
       setMotorSpeedData([]);
       setMultiLineData([]);
       setColorPalette([]);
-      // setNtcSeriesData([]);
-      // setNtcColors([]);
       setErrorMsg("No data available for this serial number.");
     } finally {
       setLoading(false);
     }
   };
-  
-  
+
   const handleOnChange = (value: string) => {
     setInputSerial(value);
     setMetrics([]);
     setLineChartData([]);
+    setLineChartDataForCurrent([]);
     setMotorSpeedData([]);
     setMultiLineData([]);
     setColorPalette([]);
-    // setNtcSeriesData([]);
-    // setNtcColors([]);
   };
 
   return (
     <div className="space-y-6">
-    <div className="flex flex-col md:flex-row md:items-center gap-3 mb-6">
-      <input
-        type="text"
-        value={inputSerial}
-        onChange={(e) => handleOnChange(e.target.value)}
-        placeholder="Enter Serial Number"
-        className="px-3 py-2 border border-gray-300 rounded text-white bg-gray-800 placeholder-gray-400 w-full md:w-64"
-      />
+      <div className="flex flex-col md:flex-row md:items-center gap-3 mb-6">
+        <input
+          type="text"
+          value={inputSerial}
+          onChange={(e) => handleOnChange(e.target.value)}
+          placeholder="Enter Serial Number"
+          className="px-3 py-2 border border-gray-300 rounded text-white bg-gray-800 placeholder-gray-400 w-full md:w-64"
+        />
 
-      <DatePicker
-        selected={startDate}
-        onChange={(date) => setStartDate(date)}
-        placeholderText="Start Date"
-        className="px-3 py-2 border border-gray-300 rounded text-white bg-gray-800 placeholder-gray-400 w-full md:w-auto"
-        dateFormat="yyyy-MM-dd"
-      />
+        <DatePicker
+          selected={startDate}
+          onChange={(date) => setStartDate(date)}
+          placeholderText="Start Date"
+          className="px-3 py-2 border border-gray-300 rounded text-white bg-gray-800 placeholder-gray-400 w-full md:w-auto"
+          dateFormat="yyyy-MM-dd"
+        />
 
-      <DatePicker
-        selected={endDate}
-        onChange={(date) => setEndDate(date)}
-        placeholderText="End Date"
-        className="px-3 py-2 border border-gray-300 rounded text-white bg-gray-800 placeholder-gray-400 w-full md:w-auto"
-        dateFormat="yyyy-MM-dd"
-      />
+        <DatePicker
+          selected={endDate}
+          onChange={(date) => setEndDate(date)}
+          placeholderText="End Date"
+          className="px-3 py-2 border border-gray-300 rounded text-white bg-gray-800 placeholder-gray-400 w-full md:w-auto"
+          dateFormat="yyyy-MM-dd"
+        />
 
-      <button
-        onClick={handleSubmit}
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full md:w-auto"
-      >
-        Submit
-      </button>
-    </div>
+        <button
+          onClick={handleSubmit}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full md:w-auto"
+        >
+          Submit
+        </button>
+      </div>
 
       {loading && <p className="text-white">Loading data...</p>}
       {errorMsg && <p className="text-red-200">{errorMsg}</p>}
@@ -351,9 +199,6 @@ export default function Page() {
                 <LineChartOne data={currentData} color="#22C55E" yAxisTitle="Ampere" />
               </ComponentCard>
             </div>
-          </div>
-
-          <div className="grid grid-cols-12 gap-6">
             <div className="col-span-12 lg:col-span-6">
               <ComponentCard title="Cell Voltages">
                 <LineChartMultiSeries
@@ -368,29 +213,7 @@ export default function Page() {
                 <LineChartOne data={motorSpeedData} color="#6366F1" yAxisTitle="Speed" />
               </ComponentCard>
             </div>
-            {/* <div className="col-span-12 lg:col-span-6">
-              <ComponentCard title="Temperature Sensors">
-                <LineChartMultiSeries
-                  series={ntcSeriesData}
-                  colorPalette={ntcColors}
-                  yAxisTitle="°Celsius"
-                />
-              </ComponentCard>
-            </div> */}
           </div>
-
-          {/* <div className="grid grid-cols-12 gap-6">
-            <div className="col-span-12 lg:col-span-6">
-              <ComponentCard title="Speed">
-                <LineChartOne data={motorSpeedData} color="#6366F1" yAxisTitle="Speed" />
-              </ComponentCard>
-            </div>
-            <div className="col-span-12 lg:col-span-6">
-              <ComponentCard title="Pack Current">
-                <LineChartOne data={currentData} color="#FB923C" yAxisTitle="Ampere" />
-              </ComponentCard>
-            </div>
-          </div> */}
         </>
       )}
     </div>
