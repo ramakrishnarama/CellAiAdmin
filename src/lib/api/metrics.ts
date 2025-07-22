@@ -6,6 +6,7 @@ export type ExcelRow = {
   _field: string;
   _value: string;
   _time: string;
+  ISTserverTimeStamp: string; // 👈 Add this line
 };
 
 export async function getMetrics(serial: string) {
