@@ -5,7 +5,12 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
 // Fix default marker icon issue in Leaflet
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+// delete (L.Icon.Default.prototype as any)._getIconUrl;
+// delete (L.Icon.Default.prototype as unknown as { _getIconUrl: () => string })._getIconUrl;
+if ('_getIconUrl' in L.Icon.Default.prototype) {
+    delete (L.Icon.Default.prototype as { _getIconUrl?: () => string })._getIconUrl;
+  }
+  
 L.Icon.Default.mergeOptions({
   iconUrl: "/images/marker-icon.png",
   shadowUrl: "/images/marker-shadow.png",
