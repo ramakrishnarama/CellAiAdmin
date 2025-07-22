@@ -38,22 +38,44 @@ const scooterLocations: Scooter[] = [
 
 export default function MapWithScooters() {
   return (
-    <MapContainer center={[20.5937, 78.9629]} zoom={5} style={{ height: "700px", width: "100%" }}>
-      {/* 🌙 Dark tile layer */}
-      <TileLayer
-        attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-      />
+    <div className="relative w-full h-[700px] overflow-hidden z-0">
+  <MapContainer
+    center={[20.5937, 78.9629]}
+    zoom={5}
+    className="w-full h-full"
+  >
+    <TileLayer
+      attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+      url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+    />
+    {scooterLocations.map((scooter, index) => (
+      <Marker
+        key={index}
+        position={[scooter.lat, scooter.lng]}
+        icon={scooterIcon}
+      >
+        <Popup>{scooter.name}</Popup>
+      </Marker>
+    ))}
+  </MapContainer>
+</div>
 
-      {scooterLocations.map((scooter, index) => (
-        <Marker
-          key={index}
-          position={[scooter.lat, scooter.lng]}
-          icon={scooterIcon}
-        >
-          <Popup>{scooter.name}</Popup>
-        </Marker>
-      ))}
-    </MapContainer>
+    // <MapContainer center={[20.5937, 78.9629]} zoom={5} style={{ height: "700px", width: "100%" }}>
+    //   {/* 🌙 Dark tile layer */}
+    //   <TileLayer
+    //     attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+    //     url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+    //   />
+
+    //   {scooterLocations.map((scooter, index) => (
+    //     <Marker
+    //       key={index}
+    //       position={[scooter.lat, scooter.lng]}
+    //       icon={scooterIcon}
+    //     >
+    //       <Popup>{scooter.name}</Popup>
+    //     </Marker>
+    //   ))}
+    // </MapContainer>
   );
 }
