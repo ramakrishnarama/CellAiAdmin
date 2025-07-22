@@ -161,17 +161,22 @@ export default function Page() {
       // };
       interface DataItem {
         ISTserverTimeStamp: string;
+        [key: string]: string | number | undefined;
+
       }
       const toTimestamp = (item: DataItem): number => {
         const dateTimeString = item.ISTserverTimeStamp;
         const parsed = moment(dateTimeString, "M/D/YY HH:mm", true);
         return parsed.isValid() ? parsed.valueOf() : 0;
       };
-  
-      const extractSeries = (field: keyof typeof json[0]) =>
+
+      const extractSeries = (field: keyof DataItem) =>
         json
           .filter(item => item[field] !== undefined)
-          .map(item => [toTimestamp(item), parseFloat(item[field])])
+          .map(item => [
+            toTimestamp(item),
+            parseFloat(item[field]?.toString() ?? "0"),
+          ])
           .slice(0, 2000);
   
       const filteredDataVoltage = extractSeries("batVolt");
