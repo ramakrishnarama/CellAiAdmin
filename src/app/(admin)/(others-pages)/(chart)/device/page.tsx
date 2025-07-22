@@ -159,11 +159,13 @@ export default function Page() {
       //   const [day, month, year] = item.date.split("-");
       //   return new Date(`${year}-${month}-${day}T${item.time}`).getTime();
       // };
-
-      const toTimestamp = (item: any): number => {
-        const dateTimeString = `${item.ISTserverTimeStamp}`;
-        const parsed = moment(dateTimeString, "M/D/YY HH:mm", true); // `true` enables strict parsing     
-        return parsed.isValid() ? parsed.valueOf() : 0; // or handle invalid cases
+      interface DataItem {
+        ISTserverTimeStamp: string;
+      }
+      const toTimestamp = (item: DataItem): number => {
+        const dateTimeString = item.ISTserverTimeStamp;
+        const parsed = moment(dateTimeString, "M/D/YY HH:mm", true);
+        return parsed.isValid() ? parsed.valueOf() : 0;
       };
   
       const extractSeries = (field: keyof typeof json[0]) =>
@@ -217,10 +219,10 @@ export default function Page() {
         });
       });
   
-      const limitedNtcSeries = Object.entries(batTempSeriesMap).map(([field, data]) => ({
-        name: field,
-        data: data.slice(0, 2000),
-      }));
+      // const limitedNtcSeries = Object.entries(batTempSeriesMap).map(([field, data]) => ({
+      //   name: field,
+      //   data: data.slice(0, 2000),
+      // }));
   
       // const ntcColorList = [
       //   "#F87171", "#FBBF24", "#34D399", "#60A5FA", "#A78BFA", "#F472B6", "#FCD34D", "#4ADE80",
