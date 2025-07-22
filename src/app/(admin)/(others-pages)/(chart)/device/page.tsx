@@ -104,16 +104,44 @@ export default function Page() {
         "#EC4899", "#10B981", "#FACC15", "#6366F1", "#14B8A6", "#4ADE80", "#FB923C", "#F472B6"
       ].slice(0, limitedSeriesMap.length);
 
+      // setMetrics([
+      //   { name: "State of Charge", label: "SOC", value: json[0].socPercent, color: "#465FFF" },
+      //   { name: "Pack Voltage", label: "Volts", value: json[0].batVolt, color: "#22C55E" },
+      //   { name: "Pack Temperature", label: "°C", value: json[0].batTemp, color: "#F97316" },
+      //   { name: "Pack Current", label: "Amperes", value: json[0].batCurrent, color: "#06B6D4" },
+
+      // ]);
       setMetrics([
-        { name: "State of Charge", label: "SOC", value: json[0].socPercent, color: "#465FFF" },
-        { name: "Pack Voltage", label: "Volts", value: json[0].batVolt, color: "#22C55E" },
-        { name: "Pack Temperature", label: "°C", value: json[0].batTemp, color: "#F97316" },
-        { name: "Pack Current", label: "Amperes", value: json[0].batCurrent, color: "#06B6D4" },
-        { name: "Motor Speed", label: "kmph", value: json[0].speed, color: "#8B5CF6" },
-        { name: "Max Cell Temp", label: "°C", value: json[0].batTemp, color: "#EF4444" },
-        { name: "Odometer", label: "km", value: json[0].odo, color: "#EF4444" },
-        { name: "Discharge Cycle", label: "count", value: json[0].dischargeCycle, color: "#EF4444" },
+        {
+          name: "State of Charge",
+          label: "SOC",
+          value: Number(json[0].socPercent ?? 0),
+          color: "#465FFF",
+        },
+        {
+          name: "Pack Voltage",
+          label: "Volts",
+          value: Number(json[0].batVolt ?? 0),
+          color: "#22C55E",
+        },
+        {
+          name: "Pack Temperature",
+          label: "°C",
+          value: Number(json[0].batTemp ?? 0),
+          color: "#F97316",
+        },
+        {
+          name: "Pack Current",
+          label: "Amperes",
+          value: Number(json[0].batCurrent ?? 0),
+          color: "#06B6D4",
+        },
+        { name: "Motor Speed", label: "kmph", value: Number(json[0].speedt ?? 0), color: "#8B5CF6" },
+        { name: "Max Cell Temp", label: "°C", value: Number(json[0].batTemp?? 0), color: "#EF4444" },
+        { name: "Odometer", label: "km", value: Number(json[0].odo?? 0), color: "#EF4444" },
+        { name: "Discharge Cycle", label: "count", value: Number(json[0].dischargeCycle?? 0), color: "#EF4444" },
       ]);
+      
 
       setLineChartData(filteredDataVoltage);
       setLineChartDataForCurrent(filteredDataCurrent);
