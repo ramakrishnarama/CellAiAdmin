@@ -19,9 +19,14 @@ type Metric = {
   color: string;
 };
 
+// interface DataItem {
+//   ISTserverTimeStamp: string;
+//   [key: string]: any;
+// }
+
 interface DataItem {
   ISTserverTimeStamp: string;
-  [key: string]: any;
+  [key: string]: string | number | undefined;
 }
 
 export default function Page() {
