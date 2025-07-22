@@ -4,6 +4,7 @@ import { useState } from "react";
 import moment from "moment";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+// import { ExcelRow } from "@/types/excel";
 
 import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
@@ -25,9 +26,14 @@ type Metric = {
 // }
 
 interface DataItem {
-  ISTserverTimeStamp: string;
+  ISTserverTimeStamp?: string;
   [key: string]: string | number | undefined;
 }
+
+// export interface ExcelRow {
+//   ISTserverTimeStamp: string;
+//   [key: string]: string | number | undefined;
+// }
 
 export default function Page() {
   const [inputSerial, setInputSerial] = useState("");
