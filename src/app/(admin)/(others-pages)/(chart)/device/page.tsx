@@ -219,15 +219,13 @@ export default function Page() {
   
       const limitedNtcSeries = Object.entries(batTempSeriesMap).map(([field, data]) => ({
         name: field,
-        data: data,
-
         data: data.slice(0, 2000),
       }));
   
-      const ntcColorList = [
-        "#F87171", "#FBBF24", "#34D399", "#60A5FA", "#A78BFA", "#F472B6", "#FCD34D", "#4ADE80",
-        "#818CF8", "#FACC15", "#10B981", "#FB7185", "#0EA5E9", "#8B5CF6"
-      ].slice(0, limitedNtcSeries.length);
+      // const ntcColorList = [
+      //   "#F87171", "#FBBF24", "#34D399", "#60A5FA", "#A78BFA", "#F472B6", "#FCD34D", "#4ADE80",
+      //   "#818CF8", "#FACC15", "#10B981", "#FB7185", "#0EA5E9", "#8B5CF6"
+      // ].slice(0, limitedNtcSeries.length);
   
       // 📊 Set Metrics
       // setSubmittedSerial(serial);
