@@ -19,11 +19,17 @@ const scooterIcon = new L.Icon({
   popupAnchor: [0, -40],
 });
 
+type Scooter = {
+    lat: number;
+    lng: number;
+    name: string;
+  };
+
 // Sample data
-const scooterLocations = [
-  { lat: 28.6139, lng: 77.2090, name: "Delhi" },
-  { lat: 19.0760, lng: 72.8777, name: "Mumbai" },
-];
+const scooterLocations: Scooter[] = [
+    { lat: 28.6139, lng: 77.2090, name: "Delhi" },
+    { lat: 19.0760, lng: 72.8777, name: "Mumbai" },
+  ];
 
 export default function MapWithScooters() {
   return (

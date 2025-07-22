@@ -30,7 +30,7 @@ export async function getExcelSheet({
 }: {
   startDate?: Date | null;
   endDate?: Date | null;
-  serial?: String | null
+  serial?: string | null
 } = {}): Promise<ExcelRow[]> {
   const res = await fetch(`/images/excel/${serial?.toUpperCase()}.json`);
   if (!res.ok) throw new Error("Failed to fetch JSON");
