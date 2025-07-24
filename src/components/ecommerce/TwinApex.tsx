@@ -14,7 +14,28 @@ type Props = {
   name: string;
 };
 
-export default function TwinApex({name, label, value, color }: Props) {
+export default function TwinApex({ name, label, value, color }: Props) {
+  const isSimpleDisplay = name === "Odometer" || name === "Discharge Cycle";
+
+  if (isSimpleDisplay) {
+    return (
+      <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 p-5 flex flex-col items-center justify-center h-[200px]">
+        <h4 className="text-base font-semibold text-center dark:text-white/70">
+          {name}
+        </h4>
+        <div
+          className="text-4xl font-bold mt-6"
+          style={{ color: color }}
+        >
+          {value}
+        </div>
+        <div className="text-sm font-medium text-gray-700 dark:text-white mt-2">
+          {label}
+        </div>
+      </div>
+    );
+  }
+
   const options: ApexOptions = {
     colors: [color],
     chart: {
@@ -27,9 +48,7 @@ export default function TwinApex({name, label, value, color }: Props) {
       radialBar: {
         startAngle: -95,
         endAngle: 95,
-        hollow: {
-          size: "50%",
-        },
+        hollow: { size: "50%" },
         track: {
           background: "#E4E7EC",
           strokeWidth: "100%",
@@ -42,30 +61,21 @@ export default function TwinApex({name, label, value, color }: Props) {
             fontWeight: "600",
             offsetY: 10,
             color: color,
-            formatter: (val) => {
-              return label === "SOC" ? `${val}%` : `${val}`;
-            }          
+            formatter: (val) => (label === "SOC" ? `${val}%` : `${val}`),
           },
         },
       },
     },
-    fill: {
-      type: "solid",
-      colors: [color],
-    },
-    stroke: {
-      lineCap: "round",
-    },
+    fill: { type: "solid", colors: [color] },
+    stroke: { lineCap: "round" },
     labels: [label],
   };
 
   return (
     <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 p-5">
-        <div className="">
-        <h4 className="text-base font-semibold text-center dark:text-white/70">
-          {name}
-        </h4>
-        </div>
+      <h4 className="text-base font-semibold text-center dark:text-white/70">
+        {name}
+      </h4>
       <ReactApexChart
         options={options}
         series={[value]}

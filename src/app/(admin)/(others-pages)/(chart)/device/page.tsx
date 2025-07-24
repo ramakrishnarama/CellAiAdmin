@@ -138,8 +138,8 @@ export default function Page() {
         },
         { name: "Motor Speed", label: "kmph", value: Number(json[0].speedt ?? 0), color: "#8B5CF6" },
         { name: "Max Cell Temp", label: "°C", value: Number(json[0].batTemp?? 0), color: "#EF4444" },
-        { name: "Odometer", label: "km", value: Number(json[0].odo?? 0), color: "#EF4444" },
-        { name: "Discharge Cycle", label: "count", value: Number(json[0].dischargeCycle?? 0), color: "#EF4444" },
+        { name: "Odometer", label: "km", value: Number(json[0].odo?? 0), color: "#F97316" },
+        { name: "Discharge Cycle", label: "count", value: Number(json[0].dischargeCycle?? 0), color: "#EAB308" },
       ]);
       
 

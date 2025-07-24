@@ -35,9 +35,10 @@ const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Device Management",
-    subItems: [
-      { name: "Device", path: "/device", pro: false }
-    ]
+    path: "/device"
+    // subItems: [
+    //   { name: "Device", path: "/device", pro: false }
+    // ]
   },
   // {
   //   icon: <CalenderIcon />,
