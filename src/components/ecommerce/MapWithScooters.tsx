@@ -5,7 +5,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
 // Fix default marker icon issue in Leaflet
-if ('_getIconUrl' in L.Icon.Default.prototype) {
+if ("_getIconUrl" in L.Icon.Default.prototype) {
   delete (L.Icon.Default.prototype as { _getIconUrl?: () => string })._getIconUrl;
 }
 
@@ -28,27 +28,40 @@ type Scooter = {
   name: string;
 };
 
-// Sample data
 const scooterLocations: Scooter[] = [
-  { lat: 28.6139, lng: 77.2090, name: "Delhi" },
-  { lat: 19.0760, lng: 72.8777, name: "Mumbai" },
+  { lat: 17.481857, lng: 78.372079, name: "FLOWBATT00001" },
+  { lat: 12.9719, lng: 77.5937, name: "FLOWBATT00002" },
+  { lat: 19.076, lng: 72.8777, name: "FLOWBATT00003" },
+];
+
+// Status values
+const statuses = [
+  { label: "RUNNING", value: 10 },
+  { label: "CHARGING", value: 45 },
+  { label: "IDLE", value: 67 },
+  { label: "LOW SOC", value: 8 },
 ];
 
 export default function MapWithScooters() {
   return (
     <div className="relative w-full h-[700px] overflow-hidden z-0">
-      {/* <MapContainer
+      {/* ✅ STATUS BAR ABOVE MAP */}
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-black/70 text-white rounded-xl flex gap-6 px-6 py-3 text-sm backdrop-blur-md shadow-md">
+        {statuses.map((status) => (
+          <div key={status.label} className="flex flex-col items-center">
+            <span className="text-xs text-gray-300">{status.label}</span>
+            <span className="text-lg font-semibold">{status.value}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* ✅ MAP */}
+      <MapContainer
         center={[20.5937, 78.9629]}
         zoom={5}
-        className="w-full h-full"
-      > */}
-        <MapContainer
-        center={[20.5937, 78.9629]}
-        zoom={5}
-        zoomControl={true} // ✅ Explicitly enable zoom controls
-        className="w-full h-full"
+        zoomControl={true}
+        className="w-full h-full z-0"
       >
-        {/* ✅ Light gray basemap */}
         <TileLayer
           attribution='&copy; <a href="https://carto.com/">CARTO</a>'
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
@@ -64,9 +77,6 @@ export default function MapWithScooters() {
           </Marker>
         ))}
       </MapContainer>
-
-      {/* 🖤 Optional: Transparent black overlay */}
-      {/* <div className="absolute top-0 left-0 w-full h-full bg-black/10 pointer-events-none z-10" /> */}
     </div>
   );
 }

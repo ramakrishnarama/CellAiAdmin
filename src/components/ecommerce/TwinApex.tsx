@@ -15,11 +15,11 @@ type Props = {
 };
 
 export default function TwinApex({ name, label, value, color }: Props) {
-  const isSimpleDisplay = name === "Odometer" || name === "Discharge Cycle";
+  const isSimpleDisplay = name === "Odometer" || name === "Discharge Cycles";
 
   if (isSimpleDisplay) {
     return (
-      <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 p-5 flex flex-col items-center justify-center h-[200px]">
+      <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 p-5 flex flex-col items-center justify-center h-[170px]">
         <h4 className="text-base font-semibold text-center dark:text-white/70">
           {name}
         </h4>

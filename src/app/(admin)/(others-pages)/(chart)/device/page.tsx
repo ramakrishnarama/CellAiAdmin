@@ -39,6 +39,8 @@ export default function Page() {
   const [inputSerial, setInputSerial] = useState("");
   const [metrics, setMetrics] = useState<Metric[]>([]);
   const [lineChartData, setLineChartData] = useState<[number, number][]>([]);
+  const [lineChartDataSoc, setLineChartDataSoc] = useState<[number, number][]>([]);
+  const [lineChartDataBatTemp, setLineChartDataBatTemp] = useState<[number, number][]>([]);
   const [currentData, setLineChartDataForCurrent] = useState<[number, number][]>([]);
   const [motorSpeedData, setMotorSpeedData] = useState<[number, number][]>([]);
   const [multiLineData, setMultiLineData] = useState<{ name: string; data: { x: number; y: number }[] }[]>([]);
@@ -75,7 +77,9 @@ export default function Page() {
 
       if (!json || json.length === 0) throw new Error("No data");
 
+      const filteredDataSoc = extractSeries(json, "socPercent");
       const filteredDataVoltage = extractSeries(json, "batVolt");
+      const filteredDataBatTemp = extractSeries(json, "batTemp");
       const filteredDataCurrent = extractSeries(json, "batCurrent");
       const motorSpeed = extractSeries(json, "speed");
 
@@ -136,13 +140,14 @@ export default function Page() {
           value: Number(json[0].batCurrent ?? 0),
           color: "#06B6D4",
         },
-        { name: "Motor Speed", label: "kmph", value: Number(json[0].speedt ?? 0), color: "#8B5CF6" },
-        { name: "Max Cell Temp", label: "°C", value: Number(json[0].batTemp?? 0), color: "#EF4444" },
+        { name: "Vehicle Speed", label: "kmph", value: Number(json[0].speedt ?? 0), color: "#8B5CF6" },
+        { name: "Cell Imbalance", label: "Volts", value: Number(json[0].cell_imbalance ?? 0), color: "#EF4444" },
         { name: "Odometer", label: "km", value: Number(json[0].odo?? 0), color: "#F97316" },
-        { name: "Discharge Cycle", label: "count", value: Number(json[0].dischargeCycle?? 0), color: "#EAB308" },
+        { name: "Discharge Cycles", label: "cycles", value: Number(json[0].dischargeCycle?? 0), color: "#EAB308" },
       ]);
       
-
+      setLineChartDataSoc(filteredDataSoc);
+      setLineChartDataBatTemp(filteredDataBatTemp);
       setLineChartData(filteredDataVoltage);
       setLineChartDataForCurrent(filteredDataCurrent);
       setMotorSpeedData(motorSpeed);
@@ -151,6 +156,8 @@ export default function Page() {
     } catch (err) {
       console.error(err);
       setMetrics([]);
+      setLineChartDataSoc([]);
+      setLineChartDataBatTemp([])
       setLineChartData([]);
       setLineChartDataForCurrent([]);
       setMotorSpeedData([]);
@@ -165,6 +172,8 @@ export default function Page() {
   const handleOnChange = (value: string) => {
     setInputSerial(value);
     setMetrics([]);
+    setLineChartDataSoc([]);
+    setLineChartDataBatTemp([])
     setLineChartData([]);
     setLineChartDataForCurrent([]);
     setMotorSpeedData([]);
@@ -228,28 +237,38 @@ export default function Page() {
           <PageBreadcrumb pageTitle="Charts Overview" />
 
           <div className="grid grid-cols-12 gap-6">
-            <div className="col-span-12 lg:col-span-6">
+            <div className="col-span-12 lg:col-span-12">
+              <ComponentCard title="State of Charge(SOC)">
+                <LineChartOne data={lineChartDataSoc} color="#F97316" yAxisTitle="Volts" />
+              </ComponentCard>
+            </div>
+            <div className="col-span-12 lg:col-span-12">
               <ComponentCard title="Pack Voltage">
                 <LineChartOne data={lineChartData} color="#465fff" yAxisTitle="Volts" />
               </ComponentCard>
             </div>
-            <div className="col-span-12 lg:col-span-6">
+            <div className="col-span-12 lg:col-span-12">
+              <ComponentCard title="Pack Temperature">
+                <LineChartOne data={lineChartDataBatTemp} color="#F97316" yAxisTitle="Volts" />
+              </ComponentCard>
+            </div>
+            <div className="col-span-12 lg:col-span-12">
               <ComponentCard title="Pack Current">
                 <LineChartOne data={currentData} color="#22C55E" yAxisTitle="Ampere" />
               </ComponentCard>
             </div>
-            <div className="col-span-12 lg:col-span-6">
+            <div className="col-span-12 lg:col-span-12">
+              <ComponentCard title="Vehicle Speed">
+                <LineChartOne data={motorSpeedData} color="#6366F1" yAxisTitle="Speed" />
+              </ComponentCard>
+            </div>
+            <div className="col-span-12 lg:col-span-12">
               <ComponentCard title="Cell Voltages">
                 <LineChartMultiSeries
                   series={multiLineData}
                   colorPalette={colorPalette}
                   yAxisTitle="Volts"
                 />
-              </ComponentCard>
-            </div>
-            <div className="col-span-12 lg:col-span-6">
-              <ComponentCard title="Speed">
-                <LineChartOne data={motorSpeedData} color="#6366F1" yAxisTitle="Speed" />
               </ComponentCard>
             </div>
           </div>
