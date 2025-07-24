@@ -36,24 +36,26 @@ const scooterLocations: Scooter[] = [
 
 // Status values
 const statuses = [
-  { label: "RUNNING", value: 10 },
-  { label: "CHARGING", value: 45 },
-  { label: "IDLE", value: 67 },
-  { label: "LOW SOC", value: 8 },
+  { label: "RUNNING", value: 10, color: "text-orange-500" },
+  { label: "CHARGING", value: 45, color: "text-green-500" },
+  { label: "IDLE", value: 67, color: "text-blue-500" },
+  { label: "LOW SOC", value: 8, color: "text-red-500" },
 ];
 
 export default function MapWithScooters() {
   return (
     <div className="relative w-full h-[700px] overflow-hidden z-0">
       {/* ✅ STATUS BAR ABOVE MAP */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-black/70 text-white rounded-xl flex gap-6 px-6 py-3 text-sm backdrop-blur-md shadow-md">
-        {statuses.map((status) => (
-          <div key={status.label} className="flex flex-col items-center">
-            <span className="text-xs text-gray-300">{status.label}</span>
-            <span className="text-lg font-semibold">{status.value}</span>
-          </div>
-        ))}
-      </div>
+
+    <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-black/70 text-white rounded-xl px-4 py-2 text-sm backdrop-blur-md shadow-md w-[90%] max-w-md flex flex-wrap justify-between gap-y-2 gap-x-4 sm:gap-x-6">
+      {statuses.map((status) => (
+        <div key={status.label} className="flex flex-col items-center w-1/4 sm:w-auto">
+          <span className="text-[10px] sm:text-xs text-gray-300">{status.label}</span>
+          <span className={`text-base sm:text-lg font-semibold ${status.color}`}>{status.value}</span>
+        </div>
+      ))}
+    </div>
+
 
       {/* ✅ MAP */}
       <MapContainer
