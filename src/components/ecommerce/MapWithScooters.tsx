@@ -1,4 +1,3 @@
-// File: MapWithScooters.tsx
 "use client";
 
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
@@ -55,16 +54,18 @@ export default function MapWithScooters() {
   };
 
   return (
-    <div className="relative w-full h-[700px] overflow-hidden z-0">
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-black/70 text-white rounded-xl flex flex-wrap justify-center gap-4 px-6 py-3 text-sm backdrop-blur-md shadow-md">
+    <div className="relative w-full h-[500px] sm:h-[600px] md:h-[700px] lg:h-[750px] z-0">
+      {/* Status Panel */}
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-black/70 text-white rounded-xl flex flex-wrap justify-center gap-3 px-4 py-2 text-xs sm:text-sm sm:gap-4 sm:px-6 sm:py-3 backdrop-blur-md shadow-md max-w-[95%]">
         {statuses.map((status) => (
-          <div key={status.label} className="flex flex-col items-center min-w-[70px]">
-            <span className="text-xs text-gray-300">{status.label}</span>
-            <span className={`text-lg font-semibold ${status.color}`}>{status.value}</span>
+          <div key={status.label} className="flex flex-col items-center min-w-[60px] sm:min-w-[70px]">
+            <span className="text-[10px] sm:text-xs text-gray-300">{status.label}</span>
+            <span className={`text-base sm:text-lg font-semibold ${status.color}`}>{status.value}</span>
           </div>
         ))}
       </div>
 
+      {/* Leaflet Map */}
       <MapContainer
         center={[20.5937, 78.9629]}
         zoom={6}
@@ -85,7 +86,7 @@ export default function MapWithScooters() {
             <Popup>
               <button
                 onClick={() => handleScooterClick(scooter.name)}
-                className="text-blue-600 hover:underline focus:outline-none"
+                className="text-blue-600 hover:underline focus:outline-none text-sm"
               >
                 {scooter.name}
               </button>

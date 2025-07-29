@@ -60,16 +60,14 @@ export default function DemographicCard() {
         </div>
       </div> */}
         {/* <div className="px-4 py-6 my-6 overflow-hidden border border-gray-200 rounded-2xl bg-gray-50 dark:border-gray-800 dark:bg-gray-900 sm:px-6"> */}
-          <div
-            id="mapOne"
-            className="mapOne map-btn w-full h-[700px]"
-          >
-            {/* <CountryMap /> */}
-            <Suspense fallback={<div>Loading map...</div>}>
-              <MapWithScooters />
-            </Suspense>
-            {/* <MapWithScooters /> */}
-          </div>
+        <div
+          id="mapOne"
+          className="mapOne map-btn w-full h-[500px] sm:h-[600px] md:h-[700px] lg:h-[750px]"
+        >
+          <Suspense fallback={<div>Loading map...</div>}>
+            <MapWithScooters />
+          </Suspense>
+        </div>
         {/* </div> */}
       {/* <div className="space-y-5">
         <div className="flex items-center justify-between">
