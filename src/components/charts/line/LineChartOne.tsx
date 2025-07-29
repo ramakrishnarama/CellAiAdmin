@@ -3,6 +3,7 @@
 import React from "react";
 import { ApexOptions } from "apexcharts";
 import dynamic from "next/dynamic";
+import moment from "moment-timezone"; // ✅ Import moment-timezone
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
@@ -11,13 +12,13 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
 type LineChartOneProps = {
   data: [number, number][];
   color?: string;
-  yAxisTitle?: string; // <- new prop
+  yAxisTitle?: string;
 };
 
 export default function LineChartOne({
   data,
   color = "#465fff",
-  yAxisTitle = "Value", // <- default label
+  yAxisTitle = "Value",
 }: LineChartOneProps) {
   const options: ApexOptions = {
     chart: {
@@ -29,7 +30,8 @@ export default function LineChartOne({
     xaxis: {
       type: "datetime",
       labels: {
-        datetimeUTC: false,
+        formatter: (value: any) =>
+          moment(value).tz("Asia/Kolkata").format("DD/MM/YYYY HH:mm"), // ✅ IST format
       },
     },
     yaxis: {
@@ -43,7 +45,8 @@ export default function LineChartOne({
     },
     tooltip: {
       x: {
-        format: "dd MMM yyyy HH:mm",
+        formatter: (value: number) =>
+          moment(value).tz("Asia/Kolkata").format("DD/MM/YYYY HH:mm"), // ✅ IST in tooltip
       },
     },
     dataLabels: {
@@ -54,7 +57,7 @@ export default function LineChartOne({
 
   const series = [
     {
-      name: yAxisTitle || "Metric", // Label for legend & tooltip
+      name: yAxisTitle || "Metric",
       data,
     },
   ];

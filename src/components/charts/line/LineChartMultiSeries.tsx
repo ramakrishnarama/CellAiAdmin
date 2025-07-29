@@ -3,6 +3,7 @@
 import React from "react";
 import { ApexOptions } from "apexcharts";
 import dynamic from "next/dynamic";
+import moment from "moment-timezone"; // ✅ Import moment-timezone
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
@@ -42,6 +43,8 @@ export default function LineChartMultiSeries({
       labels: {
         datetimeUTC: false,
         style: { colors: "#ccc" },
+        formatter: (value: any) =>
+          moment(value).tz("Asia/Kolkata").format("DD/MM/YYYY HH:mm"), // ✅ IST format
       },
       axisBorder: { show: true },
       axisTicks: { show: true },
@@ -58,7 +61,8 @@ export default function LineChartMultiSeries({
     tooltip: {
       shared: true,
       x: {
-        format: "dd MMM yyyy HH:mm",
+        formatter: (value: number) =>
+          moment(value).tz("Asia/Kolkata").format("DD/MM/YYYY HH:mm"), // ✅ IST in tooltip
       },
     },
     dataLabels: {
