@@ -30,9 +30,9 @@ export default function LineChartOne({
     xaxis: {
       type: "datetime",
       labels: {
-        formatter: (value: any) =>
+        formatter: (value: number) =>
           moment(value).tz("Asia/Kolkata").format("DD/MM/YYYY HH:mm"), // ✅ IST format
-      },
+      },      
     },
     yaxis: {
       title: {
