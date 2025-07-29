@@ -43,7 +43,7 @@ export default function LineChartMultiSeries({
       labels: {
         datetimeUTC: false,
         style: { colors: "#ccc" },
-        formatter: (value: number) =>
+        formatter: (value: string) =>
           moment(value).tz("Asia/Kolkata").format("DD/MM/YYYY HH:mm"), // ✅ IST format
       },
       axisBorder: { show: true },
