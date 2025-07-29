@@ -52,23 +52,69 @@ export async function getExcelSheet({
   //   return itemDate >= start && itemDate <= end;
   // });
 
-return data.filter((item) => {
-  let timestamp: number | null = null;
+  return data.filter((item) => {
+    const dateTimeString = item.ISTserverTimeStamp;
+  
+    const parsed = moment(
+      item.ISTserverTimeStamp,
+      [
+        // YYYY formats
+        "M/D/YYYY HH:mm", "MM/DD/YYYY HH:mm", "M/DD/YYYY HH:mm", "MM/D/YYYY HH:mm",
+        "M/D/YYYY H:mm",  "MM/DD/YYYY H:mm",  "M/DD/YYYY H:mm",  "MM/D/YYYY H:mm",
+    
+        // YY formats
+        "M/D/YY HH:mm",   "MM/DD/YY HH:mm",   "M/DD/YY HH:mm",   "MM/D/YY HH:mm",
+        "M/D/YY H:mm",    "MM/DD/YY H:mm",    "M/DD/YY H:mm",    "MM/D/YY H:mm"
+      ],
+      true
+    );    
+  
+    if (!parsed.isValid()) return false;
+  
+    const timestamp = parsed.valueOf();
+  
+    let start = startDate ? new Date(startDate) : new Date(-8640000000000000); // minimum date
+    let end = endDate ? new Date(endDate) : new Date(8640000000000000); // maximum date
+  
+    // If same day is selected, extend range to full day: 00:00:00 - 23:59:59.999
+    if (
+      startDate &&
+      endDate &&
+      moment(startDate).isSame(endDate, "day")
+    ) {
+      start.setHours(0, 0, 0, 0);         // 00:00:00.000
+      end.setHours(23, 59, 59, 999);      // 23:59:59.999
+    }
+  
+    return timestamp >= start.getTime() && timestamp <= end.getTime();
+  });
+  
 
-  // Try parsing with moment using multiple formats
-  const dateTimeString = `${item.ISTserverTimeStamp}`;
-  const parsed = moment(dateTimeString, "M/D/YY HH:mm", true); // `true` enables strict parsing     
-  if (parsed.isValid()) {
-    timestamp = parsed.valueOf();
-  } else {
-    return false; // skip invalid
-  }
+// return data.filter((item) => {
+//   let timestamp: number | null = null;
 
-  const start = startDate ? startDate.getTime() : -Infinity;
-  const end = endDate ? endDate.getTime() : Infinity;
+//   // Try parsing with moment using multiple formats
+//   const dateTimeString = `${item.ISTserverTimeStamp}`;
+//   const parsed = moment(
+//     dateTimeString,
+//     [
+//       "M/D/YYYY HH:mm", "MM/DD/YYYY HH:mm", "M/DD/YYYY HH:mm", "MM/D/YYYY HH:mm",
+//       "M/D/YY HH:mm", "MM/DD/YY HH:mm", "M/DD/YY HH:mm", "MM/D/YY HH:mm"
+//     ],
+//     true
+//   );
+  
+//   if (parsed.isValid()) {
+//     timestamp = parsed.valueOf();
+//   } else {
+//     return false; // skip invalid
+//   }
 
-  return timestamp >= start && timestamp <= end;
-});
+//   const start = startDate ? startDate.getTime() : -Infinity;
+//   const end = endDate ? endDate.getTime() : Infinity;
+
+//   return timestamp >= start && timestamp <= end;
+// });
 
   
   // return data.filter((item) => {

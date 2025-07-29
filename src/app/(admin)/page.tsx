@@ -30,11 +30,11 @@ export default function Ecommerce() {
         <StatisticsChart />
       </div> */}
 
-      <div className="col-span-12 xl:col-span-8">
+      <div className="col-span-12 xl:col-span-7">
         <DemographicCard />
       </div>
 
-      <div className="col-span-12 xl:col-span-4">
+      <div className="col-span-12 xl:col-span-5">
         <RecentOrders />
       </div>
     </div>

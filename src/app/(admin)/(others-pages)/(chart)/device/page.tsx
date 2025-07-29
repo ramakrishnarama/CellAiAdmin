@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import moment from "moment";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-// import { ExcelRow } from "@/types/excel";
 
 import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
@@ -12,6 +11,7 @@ import TwinApex from "@/components/ecommerce/TwinApex";
 import LineChartOne from "@/components/charts/line/LineChartOne";
 import LineChartMultiSeries from "@/components/charts/line/LineChartMultiSeries";
 import { getExcelSheet } from "@/lib/api/metrics";
+import { useSearchParams } from "next/navigation";
 
 type Metric = {
   name: string;
@@ -20,20 +20,16 @@ type Metric = {
   color: string;
 };
 
-// interface DataItem {
-//   ISTserverTimeStamp: string;
-//   [key: string]: any;
-// }
-
-interface DataItem {
+type DataItem = {
   ISTserverTimeStamp?: string;
   [key: string]: string | number | undefined;
-}
+};
 
-// export interface ExcelRow {
-//   ISTserverTimeStamp: string;
-//   [key: string]: string | number | undefined;
-// }
+const getToday = () => {
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  return now;
+};
 
 export default function Page() {
   const [inputSerial, setInputSerial] = useState("");
@@ -50,11 +46,44 @@ export default function Page() {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
 
+  const searchParams = useSearchParams();
+
   const toTimestamp = (item: DataItem): number => {
     const dateTimeString = item.ISTserverTimeStamp;
-    const parsed = moment(dateTimeString, "M/D/YY HH:mm", true);
+    // const parsed = moment(dateTimeString, "M/D/YY HH:mm", true);
+    const parsed = moment(
+      dateTimeString,
+      [
+        // YYYY formats
+        "M/D/YYYY HH:mm", "MM/DD/YYYY HH:mm", "M/DD/YYYY HH:mm", "MM/D/YYYY HH:mm",
+        "M/D/YYYY H:mm",  "MM/DD/YYYY H:mm",  "M/DD/YYYY H:mm",  "MM/D/YYYY H:mm",
+    
+        // YY formats
+        "M/D/YY HH:mm",   "MM/DD/YY HH:mm",   "M/DD/YY HH:mm",   "MM/D/YY HH:mm",
+        "M/D/YY H:mm",    "MM/DD/YY H:mm",    "M/DD/YY H:mm",    "MM/D/YY H:mm"
+      ],
+      true
+    );     
     return parsed.isValid() ? parsed.valueOf() : 0;
   };
+
+  const handleScooterSelect = (serial: string) => {
+    const today = getToday();
+    setInputSerial(serial);
+    setStartDate(today);
+    setEndDate(today);
+
+    setTimeout(() => {
+      handleSubmit(serial, today, today);
+    }, 300);
+  };
+
+  useEffect(() => {
+    const serial = searchParams.get("serial");
+    if (serial) {
+      handleScooterSelect(serial);
+    }
+  }, [searchParams]);
 
   const extractSeries = (json: DataItem[], field: string) =>
     json
@@ -63,18 +92,25 @@ export default function Page() {
         toTimestamp(item),
         parseFloat(item[field]?.toString() ?? "0"),
       ] as [number, number])
-      .slice(0, 2000);
+      .slice(0, 3000);
 
-  const handleSubmit = async () => {
-    const serial = inputSerial.trim();
+  const handleSubmit = async (
+    passedSerial?: string,
+    passedStartDate?: Date,
+    passedEndDate?: Date
+  ) => {
+    const serial = inputSerial.trim() || passedSerial;
     if (!serial) return;
+
+    const start = startDate || passedStartDate;
+    const end = endDate || passedEndDate;
+    if (!start || !end) return;
 
     setLoading(true);
     setErrorMsg("");
 
     try {
-      const json: DataItem[] = await getExcelSheet({ startDate, endDate, serial });
-
+      const json: DataItem[] = await getExcelSheet({ startDate: start, endDate: end, serial });
       if (!json || json.length === 0) throw new Error("No data");
 
       const filteredDataSoc = extractSeries(json, "socPercent");
@@ -92,10 +128,8 @@ export default function Page() {
             x: toTimestamp(item),
             y: parseFloat(item[field]?.toString() ?? "0"),
           }))
-          .slice(0, 2000);
-        if (series.length > 0) {
-          cellVoltageSeriesMap[field] = series;
-        }
+          .slice(0, 3000);
+        if (series.length > 0) cellVoltageSeriesMap[field] = series;
       }
 
       const limitedSeriesMap = Object.entries(cellVoltageSeriesMap).map(([field, data]) => ({
@@ -108,44 +142,17 @@ export default function Page() {
         "#EC4899", "#10B981", "#FACC15", "#6366F1", "#14B8A6", "#4ADE80", "#FB923C", "#F472B6"
       ].slice(0, limitedSeriesMap.length);
 
-      // setMetrics([
-      //   { name: "State of Charge", label: "SOC", value: json[0].socPercent, color: "#465FFF" },
-      //   { name: "Pack Voltage", label: "Volts", value: json[0].batVolt, color: "#22C55E" },
-      //   { name: "Pack Temperature", label: "°C", value: json[0].batTemp, color: "#F97316" },
-      //   { name: "Pack Current", label: "Amperes", value: json[0].batCurrent, color: "#06B6D4" },
-
-      // ]);
       setMetrics([
-        {
-          name: "State of Charge",
-          label: "SOC",
-          value: Number(json[0].socPercent ?? 0),
-          color: "#465FFF",
-        },
-        {
-          name: "Pack Voltage",
-          label: "Volts",
-          value: Number(json[0].batVolt ?? 0),
-          color: "#22C55E",
-        },
-        {
-          name: "Pack Temperature",
-          label: "°C",
-          value: Number(json[0].batTemp ?? 0),
-          color: "#F97316",
-        },
-        {
-          name: "Pack Current",
-          label: "Amperes",
-          value: Number(json[0].batCurrent ?? 0),
-          color: "#06B6D4",
-        },
-        { name: "Vehicle Speed", label: "kmph", value: Number(json[0].speedt ?? 0), color: "#8B5CF6" },
+        { name: "State of Charge", label: "SOC", value: Number(json[0].socPercent ?? 0), color: "#465FFF" },
+        { name: "Pack Voltage", label: "Volts", value: Number(json[0].batVolt ?? 0), color: "#22C55E" },
+        { name: "Pack Temperature", label: "°C", value: Number(json[0].batTemp ?? 0), color: "#F97316" },
+        { name: "Pack Current", label: "Amperes", value: Number(json[0].batCurrent ?? 0), color: "#06B6D4" },
+        { name: "Vehicle Speed", label: "kmph", value: Number(json[0].speed ?? 0), color: "#8B5CF6" },
         { name: "Cell Imbalance", label: "Volts", value: Number(json[0].cell_imbalance ?? 0), color: "#EF4444" },
-        { name: "Odometer", label: "km", value: Number(json[0].odo?? 0), color: "#F97316" },
-        { name: "Discharge Cycles", label: "cycles", value: Number(json[0].dischargeCycle?? 0), color: "#EAB308" },
+        { name: "Odometer", label: "km", value: Number(json[0].odo ?? 0), color: "#F97316" },
+        { name: "Discharge Cycles", label: "cycles", value: Number(json[0].dischargeCycle ?? 0), color: "#EAB308" },
       ]);
-      
+
       setLineChartDataSoc(filteredDataSoc);
       setLineChartDataBatTemp(filteredDataBatTemp);
       setLineChartData(filteredDataVoltage);
@@ -157,7 +164,7 @@ export default function Page() {
       console.error(err);
       setMetrics([]);
       setLineChartDataSoc([]);
-      setLineChartDataBatTemp([])
+      setLineChartDataBatTemp([]);
       setLineChartData([]);
       setLineChartDataForCurrent([]);
       setMotorSpeedData([]);
@@ -171,14 +178,16 @@ export default function Page() {
 
   const handleOnChange = (value: string) => {
     setInputSerial(value);
-    setMetrics([]);
-    setLineChartDataSoc([]);
-    setLineChartDataBatTemp([])
-    setLineChartData([]);
-    setLineChartDataForCurrent([]);
-    setMotorSpeedData([]);
-    setMultiLineData([]);
-    setColorPalette([]);
+    if (!value.trim()) {
+      setMetrics([]);
+      setLineChartDataSoc([]);
+      setLineChartDataBatTemp([]);
+      setLineChartData([]);
+      setLineChartDataForCurrent([]);
+      setMotorSpeedData([]);
+      setMultiLineData([]);
+      setColorPalette([]);
+    }
   };
 
   return (
@@ -209,7 +218,7 @@ export default function Page() {
         />
 
         <button
-          onClick={handleSubmit}
+          onClick={() => handleSubmit()}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full md:w-auto"
         >
           Submit
@@ -237,40 +246,33 @@ export default function Page() {
           <PageBreadcrumb pageTitle="Charts Overview" />
 
           <div className="grid grid-cols-12 gap-6">
-            <div className="col-span-12 lg:col-span-12">
-              <ComponentCard title="State of Charge(SOC)">
-                <LineChartOne data={lineChartDataSoc} color="#F97316" yAxisTitle="Volts" />
-              </ComponentCard>
-            </div>
-            <div className="col-span-12 lg:col-span-12">
-              <ComponentCard title="Pack Voltage">
-                <LineChartOne data={lineChartData} color="#465fff" yAxisTitle="Volts" />
-              </ComponentCard>
-            </div>
-            <div className="col-span-12 lg:col-span-12">
-              <ComponentCard title="Pack Temperature">
-                <LineChartOne data={lineChartDataBatTemp} color="#F97316" yAxisTitle="Volts" />
-              </ComponentCard>
-            </div>
-            <div className="col-span-12 lg:col-span-12">
-              <ComponentCard title="Pack Current">
-                <LineChartOne data={currentData} color="#22C55E" yAxisTitle="Ampere" />
-              </ComponentCard>
-            </div>
-            <div className="col-span-12 lg:col-span-12">
-              <ComponentCard title="Vehicle Speed">
-                <LineChartOne data={motorSpeedData} color="#6366F1" yAxisTitle="Speed" />
-              </ComponentCard>
-            </div>
-            <div className="col-span-12 lg:col-span-12">
-              <ComponentCard title="Cell Voltages">
-                <LineChartMultiSeries
-                  series={multiLineData}
-                  colorPalette={colorPalette}
-                  yAxisTitle="Volts"
-                />
-              </ComponentCard>
-            </div>
+            <ComponentCard title="State of Charge(SOC)" className="col-span-12">
+              <LineChartOne data={lineChartDataSoc} color="#F97316" yAxisTitle="Volts" />
+            </ComponentCard>
+
+            <ComponentCard title="Pack Voltage" className="col-span-12">
+              <LineChartOne data={lineChartData} color="#465fff" yAxisTitle="Volts" />
+            </ComponentCard>
+
+            <ComponentCard title="Pack Temperature" className="col-span-12">
+              <LineChartOne data={lineChartDataBatTemp} color="#F97316" yAxisTitle="°C" />
+            </ComponentCard>
+
+            <ComponentCard title="Pack Current" className="col-span-12">
+              <LineChartOne data={currentData} color="#22C55E" yAxisTitle="Ampere" />
+            </ComponentCard>
+
+            <ComponentCard title="Vehicle Speed" className="col-span-12">
+              <LineChartOne data={motorSpeedData} color="#6366F1" yAxisTitle="Speed" />
+            </ComponentCard>
+
+            <ComponentCard title="Cell Voltages" className="col-span-12">
+              <LineChartMultiSeries
+                series={multiLineData}
+                colorPalette={colorPalette}
+                yAxisTitle="Volts"
+              />
+            </ComponentCard>
           </div>
         </>
       )}
