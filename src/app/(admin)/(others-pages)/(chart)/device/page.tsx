@@ -11,7 +11,7 @@ import TwinApex from "@/components/ecommerce/TwinApex";
 import LineChartOne from "@/components/charts/line/LineChartOne";
 import LineChartMultiSeries from "@/components/charts/line/LineChartMultiSeries";
 import { getExcelSheet } from "@/lib/api/metrics";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 // const router = useRouter();
 
@@ -27,11 +27,11 @@ type DataItem = {
   [key: string]: string | number | undefined;
 };
 
-const getToday = () => {
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  return now;
-};
+// const getToday = () => {
+//   const now = new Date();
+//   now.setHours(0, 0, 0, 0);
+//   return now;
+// };
 
 export default function Page() {
   const [inputSerial, setInputSerial] = useState("");
