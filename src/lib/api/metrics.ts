@@ -53,7 +53,7 @@ export async function getExcelSheet({
   // });
 
   return data.filter((item) => {
-    const dateTimeString = item.ISTserverTimeStamp;
+    // const dateTimeString = item.ISTserverTimeStamp;
   
     const parsed = moment(
       item.ISTserverTimeStamp,
@@ -73,8 +73,8 @@ export async function getExcelSheet({
   
     const timestamp = parsed.valueOf();
   
-    let start = startDate ? new Date(startDate) : new Date(-8640000000000000); // minimum date
-    let end = endDate ? new Date(endDate) : new Date(8640000000000000); // maximum date
+    const start = startDate ? new Date(startDate) : new Date(-8640000000000000); // minimum date
+    const end = endDate ? new Date(endDate) : new Date(8640000000000000); // maximum date
   
     // If same day is selected, extend range to full day: 00:00:00 - 23:59:59.999
     if (
