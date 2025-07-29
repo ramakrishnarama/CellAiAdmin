@@ -11,7 +11,9 @@ import TwinApex from "@/components/ecommerce/TwinApex";
 import LineChartOne from "@/components/charts/line/LineChartOne";
 import LineChartMultiSeries from "@/components/charts/line/LineChartMultiSeries";
 import { getExcelSheet } from "@/lib/api/metrics";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+
+// const router = useRouter();
 
 type Metric = {
   name: string;
@@ -67,23 +69,43 @@ export default function Page() {
     return parsed.isValid() ? parsed.valueOf() : 0;
   };
 
-  const handleScooterSelect = (serial: string) => {
-    const today = getToday();
+  const handleScooterSelect = (
+    serial: string,
+    start: Date,
+    end: Date
+  ) => {
     setInputSerial(serial);
-    setStartDate(today);
-    setEndDate(today);
-
+    setStartDate(start);
+    setEndDate(end);
+  
     setTimeout(() => {
-      handleSubmit(serial, today, today);
+      handleSubmit(serial, start, end);
     }, 300);
   };
+  
 
   useEffect(() => {
     const serial = searchParams.get("serial");
-    if (serial) {
-      handleScooterSelect(serial);
+    const start = searchParams.get("startDate");
+    const end = searchParams.get("endDate");
+  
+    if (serial && start && end) {
+      const parsedStart = new Date(start);
+      const parsedEnd = new Date(end);
+  
+      if (!isNaN(parsedStart.getTime()) && !isNaN(parsedEnd.getTime())) {
+        handleScooterSelect(serial, parsedStart, parsedEnd);
+        // router.replace("/device"); // Clean the URL after loading
+      }
     }
   }, [searchParams]);
+
+  // useEffect(() => {
+  //   const serial = searchParams.get("serial");
+  //   if (serial) {
+  //     handleScooterSelect(serial);
+  //   }
+  // }, [searchParams]);
 
   const extractSeries = (json: DataItem[], field: string) =>
     json
@@ -92,7 +114,7 @@ export default function Page() {
         toTimestamp(item),
         parseFloat(item[field]?.toString() ?? "0"),
       ] as [number, number])
-      .slice(0, 3000);
+      .slice(0, 2000);
 
   const handleSubmit = async (
     passedSerial?: string,
@@ -128,7 +150,7 @@ export default function Page() {
             x: toTimestamp(item),
             y: parseFloat(item[field]?.toString() ?? "0"),
           }))
-          .slice(0, 3000);
+          .slice(0, 2000);
         if (series.length > 0) cellVoltageSeriesMap[field] = series;
       }
 

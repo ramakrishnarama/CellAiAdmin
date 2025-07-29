@@ -2,7 +2,7 @@
 // import Image from "next/image";
 
 // import CountryMap from "./CountryMap";
-// import { useState } from "react";
+import { Suspense } from "react";
 // import { MoreDotIcon } from "@/icons";
 // import { Dropdown } from "../ui/dropdown/Dropdown";
 // import { DropdownItem } from "../ui/dropdown/DropdownItem";
@@ -65,7 +65,10 @@ export default function DemographicCard() {
             className="mapOne map-btn w-full h-[700px]"
           >
             {/* <CountryMap /> */}
-            <MapWithScooters />
+            <Suspense fallback={<div>Loading map...</div>}>
+              <MapWithScooters />
+            </Suspense>
+            {/* <MapWithScooters /> */}
           </div>
         {/* </div> */}
       {/* <div className="space-y-5">
