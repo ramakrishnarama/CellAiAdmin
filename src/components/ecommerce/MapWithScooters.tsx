@@ -21,23 +21,10 @@ const scooterIcon = new L.Icon({
   popupAnchor: [0, -40],
 });
 
-type Scooter = {
-  lat: number;
-  lng: number;
-  name: string;
-};
-
-const scooterLocations: Scooter[] = [
+const scooterLocations = [
   { lat: 17.481857, lng: 78.372079, name: "BATT00001" },
   { lat: 17.4833, lng: 78.376294, name: "BATT00002" },
   { lat: 17.467173, lng: 78.480725, name: "BATT00003" },
-];
-
-const statuses = [
-  { label: "RUNNING", value: 10, color: "text-yellow-500" },
-  { label: "CHARGING", value: 45, color: "text-green-500" },
-  { label: "IDLE", value: 67, color: "text-blue-500" },
-  { label: "LOW SOC", value: 8, color: "text-red-500" },
 ];
 
 export default function MapWithScooters() {
@@ -54,23 +41,12 @@ export default function MapWithScooters() {
   };
 
   return (
-    <div className="relative w-full h-[500px] sm:h-[600px] md:h-[700px] lg:h-[750px] z-0">
-      {/* Status Panel */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-black/70 text-white rounded-xl flex flex-wrap justify-center gap-3 px-4 py-2 text-xs sm:text-sm sm:gap-4 sm:px-6 sm:py-3 backdrop-blur-md shadow-md max-w-[95%]">
-        {statuses.map((status) => (
-          <div key={status.label} className="flex flex-col items-center min-w-[60px] sm:min-w-[70px]">
-            <span className="text-[10px] sm:text-xs text-gray-300">{status.label}</span>
-            <span className={`text-base sm:text-lg font-semibold ${status.color}`}>{status.value}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Leaflet Map */}
+    <div className="relative w-full h-full z-0">
       <MapContainer
-        center={[20.5937, 78.9629]}
-        zoom={6}
+        center={[20.5937, 78.9629]} // Centered over India
+        zoom={5}
         zoomControl={true}
-        className="w-full h-full z-0"
+        className="w-full h-full"
       >
         <TileLayer
           attribution='&copy; <a href="https://carto.com/">CARTO</a>'
