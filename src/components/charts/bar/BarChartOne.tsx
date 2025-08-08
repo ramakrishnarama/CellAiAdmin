@@ -25,7 +25,6 @@ export default function BarChartOne({
     return null;
   }
 
-  // ✅ Prepare separate arrays for x-axis labels and values
   const categories = data.map((item) => {
     const date = new Date(item.x);
     return `${date.getDate().toString().padStart(2, "0")}/${(date.getMonth() + 1)
@@ -55,7 +54,7 @@ export default function BarChartOne({
       enabled: false,
     },
     xaxis: {
-      type: "category", // ✅ Use category for perfect alignment
+      type: "category",
       categories,
       labels: {
         rotate: -45,
@@ -84,24 +83,38 @@ export default function BarChartOne({
         formatter: (val: number) => `${val}`,
       },
       x: {
-        formatter: (_, { dataPointIndex }) => {
-          return categories[dataPointIndex];
-        },
+        formatter: (_, { dataPointIndex }) => categories[dataPointIndex],
       },
     },
     grid: {
       borderColor: "#374151",
       yaxis: {
-        lines: {
-          show: true,
-        },
+        lines: { show: true },
       },
       xaxis: {
-        lines: {
-          show: false,
-        },
+        lines: { show: false },
       },
     },
+    responsive: [
+      {
+        breakpoint: 640, // Tailwind sm: ~640px
+        options: {
+          plotOptions: {
+            bar: {
+              columnWidth: "70%", // wider bars for small screens
+            },
+          },
+          xaxis: {
+            labels: {
+              rotate: -30,
+              style: {
+                fontSize: "10px",
+              },
+            },
+          },
+        },
+      },
+    ],
   };
 
   const series = [
@@ -112,8 +125,13 @@ export default function BarChartOne({
   ];
 
   return (
-    <div className="w-full overflow-x-auto">
-      <ReactApexChart options={options} series={series} type="bar" height={height} />
+    <div className="w-full max-w-full px-2 sm:px-0 overflow-x-auto">
+      <ReactApexChart
+        options={options}
+        series={series}
+        type="bar"
+        height={height}
+      />
     </div>
   );
 }
