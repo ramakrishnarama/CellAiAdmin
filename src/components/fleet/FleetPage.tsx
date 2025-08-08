@@ -97,8 +97,8 @@ const colorPalette = [
 
 const tabs = [
   { key: "overview", label: "Overview" },
-  { key: "charging", label: "Charging Summary" },
-  { key: "stats", label: "Battery Stats" },
+  { key: "charging", label: "Utilization Metrics" },
+  { key: "stats", label: "Performance & Efficiency" },
 ];
 
 export default function FleetClient() {
