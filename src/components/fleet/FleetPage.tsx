@@ -5,7 +5,7 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import BarChartOne from "@/components/charts/bar/BarChartOne";
 
 // ✅ Generate 7 days of random data
-const generateBarData = (offset = 0, min = 0, max = 100) =>
+const generateBarData = (min = 0, max = 100) =>
   Array.from({ length: 7 }, (_, i) => {
     const date = new Date();
     date.setDate(date.getDate() - (6 - i)); // From 6 days ago to today
@@ -17,8 +17,8 @@ const generateBarData = (offset = 0, min = 0, max = 100) =>
 
 const barData = generateBarData();
 const barDataDischarged = generateBarData();
-const barDataHrCharging = generateBarData(0, 80, 180);
-const barDataHrDischarging = generateBarData(0, 30, 130);
+const barDataHrCharging = generateBarData(80, 180);
+const barDataHrDischarging = generateBarData(30, 130);
 
 export default function FleetClient() {
   return (
