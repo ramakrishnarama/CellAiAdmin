@@ -40,6 +40,11 @@ const navItems: NavItem[] = [
     //   { name: "Device", path: "/device", pro: false }
     // ]
   },
+  {
+    icon: <GridIcon />,
+    name: "Fleet Management",
+    path: "/fleet"
+  }
   // {
   //   icon: <CalenderIcon />,
   //   name: "Calendar",
