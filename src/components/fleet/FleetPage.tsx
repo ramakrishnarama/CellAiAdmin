@@ -5,95 +5,121 @@ import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import BarChartOne from "@/components/charts/bar/BarChartOne";
 import LineChartMultiSeries from "@/components/charts/line/LineChartMultiSeries";
+import BarChartMultiYValues from "@/components/charts/bar/BarChartMultiYValues";
 
-// ✅ Generate 7 days of random data
+// Helper to generate random integers
+const randInt = (min: number, max: number) =>
+  Math.floor(Math.random() * (max - min + 1)) + min;
+
+// ✅ Generate stacked data with custom bucket names
+const generateStackedData = (
+  ranges: number[], // breakpoints
+  columns = 7
+) => {
+  // Sort descending
+  const sortedRanges = [...ranges].sort((a, b) => b - a);
+
+  const labels = sortedRanges.map((r, i) => {
+    if (i === 0) return `>${r}`;
+    if (i === sortedRanges.length - 1) return `0.01–${sortedRanges[i - 1]}`;
+    return `${sortedRanges[i]}–${sortedRanges[i - 1]}`;
+  });
+
+  return labels.map((label) => ({
+    name: label,
+    data: Array.from({ length: columns }, () => randInt(1, 50)),
+  }));
+};
+
+// Generate example bar chart data
 const generateBarData = (min = 0, max = 100) =>
   Array.from({ length: 7 }, (_, i) => {
     const date = new Date();
     date.setDate(date.getDate() - (6 - i));
     return {
       x: date.getTime(),
-      y: Math.floor(Math.random() * (max - min)) + min,
+      y: randInt(min, max),
     };
   });
 
 const barData = generateBarData();
 const barDataDischarged = generateBarData();
-const barDataHrCharging = generateBarData(80, 180);
-const barDataHrDischarging = generateBarData(30, 130);
 
-// Generate one week's worth of data per series
+// Multi-series line chart data
 const generateLineSeries = (label: string, min = 20, max = 100) => ({
   name: label,
   data: Array.from({ length: 8 }, (_, i) => {
     const date = new Date();
     date.setDate(date.getDate() - (7 - i));
     return {
-      x: date.getTime(), // ✅ use timestamp
-      y: Math.floor(Math.random() * (max - min + 1)) + min,
+      x: date.getTime(),
+      y: randInt(min, max),
     };
   }),
 });
 
-// Multi-series line chart data
-const multiLineData = [
-  generateLineSeries("Battery A", 50, 90),
-  generateLineSeries("Battery B", 30, 80),
-  generateLineSeries("Battery C", 60, 100),
-  generateLineSeries("Battery D", 60, 100),
-  generateLineSeries("Battery E", 60, 100),
-  generateLineSeries("Battery F", 60, 100),
-  generateLineSeries("Battery E", 60, 100),
-  generateLineSeries("Battery F", 60, 100),
-  generateLineSeries("Battery G", 60, 100),
-  generateLineSeries("Battery H", 60, 100),
-];
+// Helper: generate range labels
+const generateRangeLabels = (min: number, max: number, step: number) => {
+  const labels: string[] = [];
+  for (let start = min; start < max; start += step) {
+    const end = start + step;
+    labels.push(`${start}–${end}`);
+  }
+  labels.push(`>${max}`);
+  return labels;
+};
 
-// Multi-series line chart data
-const multiLineDataEnergy = [
-  generateLineSeries("Battery A", 50, 90),
-  generateLineSeries("Battery B", 30, 80),
-  generateLineSeries("Battery C", 60, 100),
-  generateLineSeries("Battery D", 60, 100),
-  generateLineSeries("Battery E", 60, 100),
-  generateLineSeries("Battery F", 60, 100),
-  generateLineSeries("Battery E", 60, 100),
-  generateLineSeries("Battery F", 60, 100),
-  generateLineSeries("Battery G", 60, 100),
-  generateLineSeries("Battery H", 60, 100),
-];
+// Generate multi-line data with range labels
+const rangeLabels = generateRangeLabels(5, 40, 5);
+const multiLineData = rangeLabels.map((label) =>
+  generateLineSeries(label, randInt(10, 30), randInt(35, 80))
+);
 
-const multiLineDataEnergyOut = [
-  generateLineSeries("Battery A", 50, 90),
-  generateLineSeries("Battery B", 30, 80),
-  generateLineSeries("Battery C", 60, 100),
-  generateLineSeries("Battery D", 60, 100),
-  generateLineSeries("Battery E", 60, 100),
-  generateLineSeries("Battery F", 60, 100),
-  generateLineSeries("Battery E", 60, 100),
-  generateLineSeries("Battery F", 60, 100),
-  generateLineSeries("Battery G", 60, 100),
-  generateLineSeries("Battery H", 60, 100),
-];
 
-const multiLineDataKms = [
-  generateLineSeries("Battery A", 50, 90),
-  generateLineSeries("Battery B", 30, 80),
-  generateLineSeries("Battery C", 60, 100),
-  generateLineSeries("Battery D", 60, 100),
-  generateLineSeries("Battery E", 60, 100),
-  generateLineSeries("Battery F", 60, 100),
-  generateLineSeries("Battery E", 60, 100),
-  generateLineSeries("Battery F", 60, 100),
-  generateLineSeries("Battery G", 60, 100),
-  generateLineSeries("Battery H", 60, 100),
-];
+// const colorPalette = [
+//   "#22C55E", "#06B6D4", "#F97316", "#8B5CF6",
+//   "#EF4444", "#EAB308", "#3B82F6", "#0EA5E9"
+// ];
 
-// Color palette suitable for dark themes
-const colorPalette = [
-  "#22C55E", "#06B6D4", "#F97316", "#8B5CF6", "#EF4444", "#EAB308", "#3B82F6", "#0EA5E9",
-  "#EC4899", "#10B981", "#FACC15", "#6366F1", "#14B8A6", "#4ADE80", "#FB923C", "#F472B6"
-];
+// ✅ Category arrays
+const hourlyCategories = Array.from({ length: 24 }, (_, i) =>
+  `${String(i).padStart(2, "0")}:00`
+);
+const dateCategories = Array.from({ length: 7 }, (_, i) => {
+  const date = new Date();
+  date.setDate(date.getDate() - (6 - i));
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+});
+
+// ✅ Chart data using ranges
+const cyclesPerCountData = generateStackedData(
+  [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2], // breakpoints
+  7
+);
+const energyInData = generateStackedData(
+  [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4],
+  7
+);
+const energyOutData = generateStackedData(
+  [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4],
+  7
+);
+const distanceKmsData = generateStackedData(
+  [10, 20, 30, 40, 50, 60, 80, 100],
+  7
+);
+// const barDataHrCharging = generateStackedData([5, 10, 15, 20], 24);
+// const barDataHrDischarging = generateStackedData([5, 10, 15, 20], 24);
+
+const generateChargingData = (seriesCount: number, columns = 7) =>
+  Array.from({ length: seriesCount }, (_, sIdx) => ({
+    name: `Batteries ${sIdx + 1}`,
+    data: Array.from({ length: columns }, () => randInt(10, 50)),
+  }));
+
+
+const barDataHrCharging = generateChargingData(1, 24);
+const barDataHrDischarging = generateChargingData(1, 24);
 
 const tabs = [
   { key: "overview", label: "Overview" },
@@ -106,77 +132,93 @@ export default function FleetClient() {
 
   return (
     <div className="space-y-6">
-      <PageBreadcrumb pageTitle="Charts Overview" />
+      <PageBreadcrumb pageTitle="Fleet Overview" />
 
-      {/* ✅ Tabs */}
+      {/* Tabs */}
       <div className="flex flex-wrap gap-4 border-b border-gray-700">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`py-2 px-4 text-sm font-medium rounded-t-md transition-all duration-200 ${activeTab === tab.key
-              ? "bg-gray-800 text-white border-b-2 border-green-500"
-              : "text-gray-400 hover:text-white"
-              }`}
+            className={`py-2 px-4 text-sm font-medium rounded-t-md transition-all duration-200 ${
+              activeTab === tab.key
+                ? "bg-gray-800 text-white border-b-2 border-green-500"
+                : "text-gray-400 hover:text-white"
+            }`}
           >
             {tab.label}
           </button>
         ))}
       </div>
 
-      {/* ✅ Tab Content */}
+      {/* Tab Content */}
       {activeTab === "overview" && (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <ComponentCard title="Batteries Charged" className="w-full">
+            <ComponentCard title="Batteries Charged">
               <BarChartOne data={barData} yAxisTitle="Batteries" color="#22C55E" />
             </ComponentCard>
-            <ComponentCard title="Batteries Discharged" className="w-full">
+            <ComponentCard title="Batteries Discharged">
               <BarChartOne data={barDataDischarged} yAxisTitle="Batteries" color="#38BDF8" />
             </ComponentCard>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <ComponentCard title="Hourly Charging" className="w-full">
-              <BarChartOne data={barDataHrCharging} yAxisTitle="Batteries" color="#FBBF24" />
+            <ComponentCard title="Hourly Charging">
+              <BarChartMultiYValues
+                categories={hourlyCategories}
+                valuesPerCategory={barDataHrCharging}
+                yAxisTitle="Batteries"
+                color={["#FBBF24"]}
+              />
             </ComponentCard>
-            <ComponentCard title="Hourly Discharging" className="w-full">
-              <BarChartOne data={barDataHrDischarging} yAxisTitle="Batteries" color="#F472B6" />
+            <ComponentCard title="Hourly Discharging">
+              <BarChartMultiYValues
+                categories={hourlyCategories}
+                valuesPerCategory={barDataHrDischarging}
+                yAxisTitle="Batteries"
+                color={["#8B5CF6"]}
+              />
             </ComponentCard>
           </div>
         </>
       )}
 
       {activeTab === "charging" && (
-        <><div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <ComponentCard title="Cycle Count Per Day" className="w-full">
-            <LineChartMultiSeries
-              series={multiLineData}
-              colorPalette={colorPalette}
-              yAxisTitle="No Of Batteries"
-            />
-          </ComponentCard>
-          <ComponentCard title="Energy In (kWh)" className="w-full">
-            <LineChartMultiSeries
-              series={multiLineDataEnergy}
-              colorPalette={colorPalette}
-              yAxisTitle="No Of Batteries"
-            />
-          </ComponentCard>
-        </div>
+        <>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <ComponentCard title="Energy In (kWh)" className="w-full">
-              <LineChartMultiSeries
-                series={multiLineDataEnergyOut}
-                colorPalette={colorPalette}
-                yAxisTitle="No Of Batteries"
+            <ComponentCard title="Cycle Count Per Day">
+              <BarChartMultiYValues
+                categories={dateCategories}
+                valuesPerCategory={cyclesPerCountData}
+                yAxisTitle="Number Of Batteries"
+                color={[]}
               />
             </ComponentCard>
-            <ComponentCard title="Distance (kms)" className="w-full">
-              <LineChartMultiSeries
-                series={multiLineDataKms}
-                colorPalette={colorPalette}
-                yAxisTitle="No Of Batteries"
+            <ComponentCard title="Energy In (kWh)">
+              <BarChartMultiYValues
+                categories={dateCategories}
+                valuesPerCategory={energyInData}
+                yAxisTitle="Number Of Batteries"
+                color={[]}
+              />
+            </ComponentCard>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <ComponentCard title="Energy Out (kWh)">
+              <BarChartMultiYValues
+                categories={dateCategories}
+                valuesPerCategory={energyOutData}
+                yAxisTitle="Number Of Batteries"
+                color={[]}
+              />
+            </ComponentCard>
+            <ComponentCard title="KMS Travelled">
+              <BarChartMultiYValues
+                categories={dateCategories}
+                valuesPerCategory={distanceKmsData}
+                yAxisTitle="Number Of Batteries"
+                color={[]}
               />
             </ComponentCard>
           </div>
@@ -184,25 +226,36 @@ export default function FleetClient() {
       )}
 
       {activeTab === "stats" && (
-        <><div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <ComponentCard title="Efficiency(Wh/km)" className="w-full">
-            <LineChartMultiSeries
-              series={multiLineData}
-              colorPalette={colorPalette}
-              yAxisTitle="No Of Batteries"
-            />
-          </ComponentCard>
-          <ComponentCard title="Efficiency Distribution" className="w-full">
-            <BarChartOne data={barDataDischarged} yAxisTitle="No Of Batteries" color="#8B5CF6" />
-          </ComponentCard>
-        </div>
-
+        <>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <ComponentCard title="Energy In(kWh)" className="w-full">
-              <BarChartOne data={barDataHrCharging} yAxisTitle="EnergyIn" color="#4ADE80" />
+            <ComponentCard title="Efficiency(Wh/km)">
+              <LineChartMultiSeries
+                series={multiLineData}
+                colorPalette={[]}
+                yAxisTitle="Number Of Batteries"
+              />
             </ComponentCard>
-            <ComponentCard title="Energy Out(kWh)" className="w-full">
-              <BarChartOne data={barDataHrDischarging} yAxisTitle="EnergyOut" color="#FB923C" />
+            <ComponentCard title="Efficiency Distribution">
+              <BarChartOne data={barDataDischarged} yAxisTitle="Number Of Batteries" color="#8B5CF6" />
+            </ComponentCard>
+          </div>
+          
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <ComponentCard title="Energy In (kWh)">
+              <BarChartMultiYValues
+                categories={dateCategories}
+                valuesPerCategory={energyInData}
+                yAxisTitle="Energy In"
+                color={[]}
+              />
+            </ComponentCard>
+            <ComponentCard title="Energy Out (kWh)">
+              <BarChartMultiYValues
+                categories={dateCategories}
+                valuesPerCategory={energyOutData}
+                yAxisTitle="Energy Out"
+                color={[]}
+              />
             </ComponentCard>
           </div>
         </>

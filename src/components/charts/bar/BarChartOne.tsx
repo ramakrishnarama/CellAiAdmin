@@ -51,7 +51,12 @@ export default function BarChartOne({
       },
     },
     dataLabels: {
-      enabled: false,
+      enabled: true, // ✅ turn on data labels
+      style: {
+        fontSize: "10px",
+        colors: ["#fff"], // white text on bars
+      },
+      formatter: (val: number) => val.toString(), // format numbers
     },
     xaxis: {
       type: "category",
