@@ -200,6 +200,16 @@ export default function FleetClient() {
                 color={[]}
               />
             </ComponentCard>
+            <ComponentCard title="KMS Travelled">
+              <BarChartMultiYValues
+                categories={dateCategories}
+                valuesPerCategory={distanceKmsData}
+                yAxisTitle="Number Of Batteries"
+                color={[]}
+              />
+            </ComponentCard>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <ComponentCard title="Energy In (kWh)">
               <BarChartMultiYValues
                 categories={dateCategories}
@@ -208,20 +218,10 @@ export default function FleetClient() {
                 color={[]}
               />
             </ComponentCard>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <ComponentCard title="Energy Out (kWh)">
               <BarChartMultiYValues
                 categories={dateCategories}
                 valuesPerCategory={energyOutData}
-                yAxisTitle="Number Of Batteries"
-                color={[]}
-              />
-            </ComponentCard>
-            <ComponentCard title="KMS Travelled">
-              <BarChartMultiYValues
-                categories={dateCategories}
-                valuesPerCategory={distanceKmsData}
                 yAxisTitle="Number Of Batteries"
                 color={[]}
               />
