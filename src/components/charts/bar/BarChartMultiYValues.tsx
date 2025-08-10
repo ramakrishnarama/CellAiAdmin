@@ -28,8 +28,8 @@ export default function BarChartMultiYValues({
     chart: {
       type: "bar",
       stacked: true,
-      height: 350,
       toolbar: { show: true },
+      height: 350,
     },
     plotOptions: {
       bar: {
@@ -38,9 +38,18 @@ export default function BarChartMultiYValues({
         borderRadius: 4,
       },
     },
+    dataLabels: {
+      enabled: true,
+      style: {
+        fontSize: "10px",
+        colors: ["#fff"],
+      },
+      formatter: (val: number) => val.toString(),
+    },
     xaxis: {
       categories,
       labels: {
+        rotate: -45,
         style: {
           fontSize: "12px",
           colors: "#9CA3AF",
@@ -63,18 +72,39 @@ export default function BarChartMultiYValues({
     legend: {
       position: "right",
     },
-    colors: color,
     grid: { borderColor: "#374151" },
+    colors: color,
+    responsive: [
+      {
+        breakpoint: 1024, // tablets
+        options: {
+          chart: { height: 300 },
+          legend: { position: "bottom" },
+        },
+      },
+      {
+        breakpoint: 640, // mobile
+        options: {
+          chart: { height: 280 },
+          xaxis: {
+            labels: { rotate: -30, style: { fontSize: "10px" } },
+          },
+          legend: { position: "bottom", fontSize: "10px" },
+        },
+      },
+    ],
   };
 
   return (
     <div className="w-full overflow-x-auto">
-      <ReactApexChart
-        options={options}
-        series={valuesPerCategory}
-        type="bar"
-        height={350}
-      />
+      <div style={{ minWidth: "400px" }}>
+        <ReactApexChart
+          options={options}
+          series={valuesPerCategory}
+          type="bar"
+          height={350}
+        />
+      </div>
     </div>
   );
 }
