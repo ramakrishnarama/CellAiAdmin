@@ -108,6 +108,11 @@ const distanceKmsData = generateStackedData(
   [10, 20, 30, 40, 50, 60, 80, 100],
   7
 );
+
+const mileageData = generateStackedData(
+  [0,10, 20, 30, 40, 50],
+  7
+);
 // const barDataHrCharging = generateStackedData([5, 10, 15, 20], 24);
 // const barDataHrDischarging = generateStackedData([5, 10, 15, 20], 24);
 
@@ -235,8 +240,13 @@ export default function FleetClient() {
                 yAxisTitle="Number Of Batteries"
               />
             </ComponentCard>
-            <ComponentCard title="Efficiency Distribution">
-              <BarChartOne data={barDataDischarged} yAxisTitle="Number Of Batteries" color="#8B5CF6" />
+            <ComponentCard title="Mileage">
+              <BarChartMultiYValues
+                  categories={dateCategories}
+                  valuesPerCategory={mileageData}
+                  yAxisTitle="Number Of Batteries"
+                  color={[]}
+                />
             </ComponentCard>
           </div>
           
