@@ -46,31 +46,31 @@ const barData = generateBarData();
 const barDataDischarged = generateBarData();
 
 // Multi-series line chart data
-const generateLineSeries = (label: string, min = 20, max = 100) => ({
-  name: label,
-  data: Array.from({ length: 8 }, (_, i) => {
-    const date = new Date();
-    date.setDate(date.getDate() - (7 - i));
-    return {
-      x: date.getTime(),
-      y: randInt(min, max),
-    };
-  }),
-});
+// const generateLineSeries = (label: string, min = 20, max = 100) => ({
+//   name: label,
+//   data: Array.from({ length: 8 }, (_, i) => {
+//     const date = new Date();
+//     date.setDate(date.getDate() - (7 - i));
+//     return {
+//       x: date.getTime(),
+//       y: randInt(min, max),
+//     };
+//   }),
+// });
 
 // Helper: generate range labels
-const generateRangeLabels = (min: number, max: number, step: number) => {
-  const labels: string[] = [];
-  for (let start = min; start < max; start += step) {
-    const end = start + step;
-    labels.push(`${start}–${end}`);
-  }
-  labels.push(`>${max}`);
-  return labels;
-};
+// const generateRangeLabels = (min: number, max: number, step: number) => {
+//   const labels: string[] = [];
+//   for (let start = min; start < max; start += step) {
+//     const end = start + step;
+//     labels.push(`${start}–${end}`);
+//   }
+//   labels.push(`>${max}`);
+//   return labels;
+// };
 
 // Generate multi-line data with range labels
-const rangeLabels = generateRangeLabels(5, 40, 5);
+// const rangeLabels = generateRangeLabels(5, 40, 5);
 // const multiLineData = rangeLabels.map((label) =>
 //   generateLineSeries(label, randInt(10, 30), randInt(35, 80))
 // );
