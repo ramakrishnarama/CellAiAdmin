@@ -6,6 +6,7 @@ import React from "react";
 // import StatisticsChart from "@/components/ecommerce/StatisticsChart";
 import RecentOrders from "@/components/ecommerce/RecentOrders";
 import DemographicCard from "@/components/ecommerce/DemographicCard";
+import AuthGuard from "@/components/auth/AuthGuard";
 
 export const metadata: Metadata = {
   title:
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
 
 export default function Ecommerce() {
   return (
+    <AuthGuard>
     <div className="grid grid-cols-12 gap-4 md:gap-6">
       <div className="col-span-12">
         <EcommerceMetrics />
@@ -38,5 +40,6 @@ export default function Ecommerce() {
         <RecentOrders />
       </div>
     </div>
+    </AuthGuard>
   );
 }

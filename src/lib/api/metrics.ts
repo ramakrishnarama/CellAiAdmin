@@ -6,7 +6,7 @@ export type ExcelRow = {
   _field: string;
   _value: string;
   _time: string;
-  ISTserverTimeStamp: string; // 👈 Add this line
+  ISTserverTimeStamp: string;
 };
 
 export async function getMetrics(serial: string) {
@@ -17,13 +17,6 @@ export async function postMetric(data: unknown) {
   return apiRequest("/api/metrics", "POST", data);
 }
 
-// Fetch Excel sheet JSON with proper typing
-// export async function getExcelSheet(): Promise<ExcelRow[]> {
-//   const res = await fetch("/images/excel/data.json");
-//   if (!res.ok) throw new Error("Failed to fetch JSON");
-//   return await res.json();
-// }
-
 export async function getExcelSheet({
   startDate,
   endDate,
@@ -31,96 +24,79 @@ export async function getExcelSheet({
 }: {
   startDate?: Date | null;
   endDate?: Date | null;
-  serial?: string | null
+  serial?: string | null;
 } = {}): Promise<ExcelRow[]> {
-  const res = await fetch(`/images/excel/${serial?.toUpperCase()}.json`);
-  if (!res.ok) throw new Error("Failed to fetch JSON");
+  async function fetchJson(path: string): Promise<ExcelRow[]> {
+    const res = await fetch(path);
+    if (!res.ok) throw new Error(`Failed to fetch JSON: ${path}`);
+    return res.json();
+  }
 
-  const data: ExcelRow[] = await res.json();
+  // Fetch the main file first
+  let data: ExcelRow[] = await fetchJson(`/images/excel/${serial?.toUpperCase()}.json`);
 
-  if (!startDate && !endDate) return data;
+  // Apply filter if needed
+  let filtered: ExcelRow[] = [];
+  if (!startDate && !endDate) {
+    filtered = data;
+  } else {
+    filtered = data.filter((item) => {
+      const parsed = moment(
+        item.ISTserverTimeStamp,
+        [
+          // YYYY formats
+          "M/D/YYYY HH:mm", "MM/DD/YYYY HH:mm", "M/DD/YYYY HH:mm", "MM/D/YYYY HH:mm",
+          "M/D/YYYY H:mm",  "MM/DD/YYYY H:mm",  "M/DD/YYYY H:mm",  "MM/D/YYYY H:mm",
 
-  // return data.filter((item) => {
-  //   // Convert "DD-MM-YYYY" and "HH:mm:ss" into a valid ISO string
-  //   const [day, month, year] = item.date.split("-");
-  //   const isoString = `${year}-${month}-${day}T${item.time}`; // e.g. "2025-01-07T00:00:12"
-  //   const itemDate = new Date(isoString).getTime();
-  
-  //   const start = startDate ? startDate.getTime() : -Infinity;
-  //   const end = endDate ? endDate.getTime() : Infinity;
-  
-  //   return itemDate >= start && itemDate <= end;
-  // });
+          // YY formats
+          "M/D/YY HH:mm",   "MM/DD/YY HH:mm",   "M/DD/YY HH:mm",   "MM/D/YY HH:mm",
+          "M/D/YY H:mm",    "MM/DD/YY H:mm",    "M/DD/YY H:mm",    "MM/D/YY H:mm"
+        ],
+        true
+      );
+      if (!parsed.isValid()) return false;
 
-  return data.filter((item) => {
-    // const dateTimeString = item.ISTserverTimeStamp;
-  
-    const parsed = moment(
-      item.ISTserverTimeStamp,
-      [
-        // YYYY formats
-        "M/D/YYYY HH:mm", "MM/DD/YYYY HH:mm", "M/DD/YYYY HH:mm", "MM/D/YYYY HH:mm",
-        "M/D/YYYY H:mm",  "MM/DD/YYYY H:mm",  "M/DD/YYYY H:mm",  "MM/D/YYYY H:mm",
-    
-        // YY formats
-        "M/D/YY HH:mm",   "MM/DD/YY HH:mm",   "M/DD/YY HH:mm",   "MM/D/YY HH:mm",
-        "M/D/YY H:mm",    "MM/DD/YY H:mm",    "M/DD/YY H:mm",    "MM/D/YY H:mm"
-      ],
-      true
-    );    
-  
-    if (!parsed.isValid()) return false;
-  
-    const timestamp = parsed.valueOf();
-  
-    const start = startDate ? new Date(startDate) : new Date(-8640000000000000); // minimum date
-    const end = endDate ? new Date(endDate) : new Date(8640000000000000); // maximum date
-  
-    // If same day is selected, extend range to full day: 00:00:00 - 23:59:59.999
-    if (
-      startDate &&
-      endDate &&
-      moment(startDate).isSame(endDate, "day")
-    ) {
-      start.setHours(0, 0, 0, 0);         // 00:00:00.000
-      end.setHours(23, 59, 59, 999);      // 23:59:59.999
-    }
-  
-    return timestamp >= start.getTime() && timestamp <= end.getTime();
-  });
-  
+      const timestamp = parsed.valueOf();
+      const start = startDate ? new Date(startDate) : new Date(-8640000000000000);
+      const end = endDate ? new Date(endDate) : new Date(8640000000000000);
 
-// return data.filter((item) => {
-//   let timestamp: number | null = null;
+      // If same day is selected, extend range to full day
+      if (startDate && endDate && moment(startDate).isSame(endDate, "day")) {
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+      }
 
-//   // Try parsing with moment using multiple formats
-//   const dateTimeString = `${item.ISTserverTimeStamp}`;
-//   const parsed = moment(
-//     dateTimeString,
-//     [
-//       "M/D/YYYY HH:mm", "MM/DD/YYYY HH:mm", "M/DD/YYYY HH:mm", "MM/D/YYYY HH:mm",
-//       "M/D/YY HH:mm", "MM/DD/YY HH:mm", "M/DD/YY HH:mm", "MM/D/YY HH:mm"
-//     ],
-//     true
-//   );
-  
-//   if (parsed.isValid()) {
-//     timestamp = parsed.valueOf();
-//   } else {
-//     return false; // skip invalid
-//   }
+      return timestamp >= start.getTime() && timestamp <= end.getTime();
+    });
+  }
 
-//   const start = startDate ? startDate.getTime() : -Infinity;
-//   const end = endDate ? endDate.getTime() : Infinity;
+  // 🔹 If no data found → fallback to DEFAULT.json
+  if (filtered.length === 0) {
+    data = await fetchJson(`/images/excel/DEFAULT.json`);
+    filtered = data;
+  }
 
-//   return timestamp >= start && timestamp <= end;
-// });
+  // 🔹 If startDate & endDate are today → replace with today's date
+  if (startDate && endDate && moment(startDate).isSame(moment(), "day") && moment(endDate).isSame(moment(), "day")) {
+    const today = moment().format("M/D/YYYY");
+    const currentHour = moment().hour();
 
-  
-  // return data.filter((item) => {
-  //   const itemDate = new Date(item._time).getTime();
-  //   const start = startDate ? startDate.getTime() : -Infinity;
-  //   const end = endDate ? endDate.getTime() : Infinity;
-  //   return itemDate >= start && itemDate <= end;
-  // });
+    filtered = filtered
+      .map((row) => {
+        // Replace any hardcoded date with today's date
+        const updatedRow = { ...row };
+        updatedRow.ISTserverTimeStamp = row.ISTserverTimeStamp.replace(/^\d{1,2}\/\d{1,2}\/\d{4}/, today);
+        return updatedRow;
+      })
+      .filter((row) => {
+        if (currentHour < 20) {
+          const parsed = moment(row.ISTserverTimeStamp, ["M/D/YYYY HH:mm", "MM/DD/YYYY HH:mm"], true);
+          if (!parsed.isValid()) return false;
+          return parsed.hour() <= currentHour;
+        }
+        return true;
+      });
+  }
+
+  return filtered;
 }

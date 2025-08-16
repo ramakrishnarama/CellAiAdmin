@@ -91,6 +91,12 @@ const dateCategories = Array.from({ length: 7 }, (_, i) => {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 });
 
+const dateCategoriesForMileage = Array.from({ length: 14 }, (_, i) => {
+  const date = new Date();
+  date.setDate(date.getDate() - (13 - i));
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+});
+
 // ✅ Chart data using ranges
 const cyclesPerCountData = generateStackedData(
   [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2], // breakpoints
@@ -110,8 +116,8 @@ const distanceKmsData = generateStackedData(
 );
 
 const mileageData = generateStackedData(
-  [0,10, 20, 30, 40, 50],
-  7
+  [0,10, 20, 30, 40, 50,],
+  14
 );
 // const barDataHrCharging = generateStackedData([5, 10, 15, 20], 24);
 // const barDataHrDischarging = generateStackedData([5, 10, 15, 20], 24);
@@ -232,17 +238,18 @@ export default function FleetClient() {
 
       {activeTab === "stats" && (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <ComponentCard title="Efficiency(Wh/km)">
+          <div className="grid">
+          {/* grid-cols-1 sm:grid-cols-2 gap-6 */}
+            {/* <ComponentCard title="Efficiency (Wh/km)">
               <LineChartMultiSeries
                 series={multiLineData}
                 colorPalette={[]}
                 yAxisTitle="Number Of Batteries"
               />
-            </ComponentCard>
-            <ComponentCard title="Mileage">
+            </ComponentCard> */}
+            <ComponentCard title="Mileage (Wh/km)">
               <BarChartMultiYValues
-                  categories={dateCategories}
+                  categories={dateCategoriesForMileage}
                   valuesPerCategory={mileageData}
                   yAxisTitle="Number Of Batteries"
                   color={[]}
