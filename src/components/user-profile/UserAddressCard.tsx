@@ -7,7 +7,8 @@ import Input from "../form/input/InputField";
 import Label from "../form/Label";
 
 export default function UserAddressCard() {
-  const { isOpen, openModal, closeModal } = useModal();
+  const { isOpen,  closeModal } = useModal();
+  // openModal,
   const handleSave = () => {
     // Handle save logic here
     console.log("Saving changes...");

@@ -4,7 +4,7 @@ import { useState } from "react";
 import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import BarChartOne from "@/components/charts/bar/BarChartOne";
-import LineChartMultiSeries from "@/components/charts/line/LineChartMultiSeries";
+// import LineChartMultiSeries from "@/components/charts/line/LineChartMultiSeries";
 import BarChartMultiYValues from "@/components/charts/bar/BarChartMultiYValues";
 
 // Helper to generate random integers
@@ -71,9 +71,9 @@ const generateRangeLabels = (min: number, max: number, step: number) => {
 
 // Generate multi-line data with range labels
 const rangeLabels = generateRangeLabels(5, 40, 5);
-const multiLineData = rangeLabels.map((label) =>
-  generateLineSeries(label, randInt(10, 30), randInt(35, 80))
-);
+// const multiLineData = rangeLabels.map((label) =>
+//   generateLineSeries(label, randInt(10, 30), randInt(35, 80))
+// );
 
 
 // const colorPalette = [

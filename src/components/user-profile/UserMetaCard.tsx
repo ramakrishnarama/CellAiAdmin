@@ -9,7 +9,8 @@ import Image from "next/image";
 
 
 export default function UserMetaCard() {
-  const { isOpen, openModal, closeModal } = useModal();
+  const { isOpen, closeModal } = useModal();
+  // openModal,
   const handleSave = () => {
     // Handle save logic here
     console.log("Saving changes...");
