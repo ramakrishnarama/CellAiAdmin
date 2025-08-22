@@ -140,7 +140,7 @@ export default function DeviceClient() {
         { name: "Pack Temperature", label: "°C", value: Number(json[0].batTemp ?? 0), color: "#F97316" },
         { name: "Pack Current", label: "Amperes", value: Number(json[0].batCurrent ?? 0), color: "#06B6D4" },
         { name: "Vehicle Speed", label: "kmph", value: Number(json[0].speed ?? 0), color: "#8B5CF6" },
-        { name: "Cell Imbalance", label: "Volts", value: Number(json[0].cell_imbalance ?? 0), color: "#EF4444" },
+        { name: "Cell Imbalance", label: "mVolts", value: Number(json[0].cell_imbalance ?? 0), color: "#EF4444" },
         { name: "Odometer", label: "km", value: Number(json[0].odo ?? 0), color: "#F97316" },
         { name: "Discharge Cycles", label: "cycles", value: Number(json[0].dischargeCycle ?? 0), color: "#EAB308" },
       ]);
