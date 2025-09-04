@@ -20,7 +20,7 @@ export default function SignInForm() {
     e.preventDefault();
   
     if ((username === "admin@cellai" && password === "admin@12345")
-         || username === "demo@cellai" && password === "demo@12345") {
+         || username === "demo@cellai" && password === "123CDemo@12345") {
       const token = "SOME_RANDOM_TOKEN"; // You’d normally get this from backend
       const expiry = Date.now() + 10 * 60 * 60 * 1000; // 10 hours in ms
       localStorage.setItem("authToken", JSON.stringify({ token, expiry }));
