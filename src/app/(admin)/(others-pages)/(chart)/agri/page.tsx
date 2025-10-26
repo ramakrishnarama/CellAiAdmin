@@ -225,7 +225,6 @@
 //     </div>
 //   );
 // }
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -244,10 +243,7 @@ const generateBarData = (min = 0, max = 100) =>
   Array.from({ length: 7 }, (_, i) => {
     const date = new Date();
     date.setDate(date.getDate() - (6 - i));
-    return {
-      x: date.getTime(),
-      y: randInt(min, max),
-    };
+    return { x: date.getTime(), y: randInt(min, max) };
   });
 
 // Generate multi-category stacked data
@@ -261,14 +257,13 @@ const generateStackedData = (categories: string[], columns = 7) =>
 const soilMoistureData = generateBarData(40, 90);
 const humidityData = generateBarData(30, 80);
 const temperatureData = generateBarData(20, 40);
+const waterUsageData = generateBarData(10, 60);
 
 const nutrientLabels = ["Nitrogen (N)", "Phosphorus (P)", "Potassium (K)"];
 const nutrientLevelsData = generateStackedData(nutrientLabels);
 
 const cropTypes = ["Sugarcane", "Groundnut", "Paddy", "Banana", "Cotton"];
 const irrigationEventsData = generateStackedData(cropTypes, 7);
-
-const waterUsageData = generateBarData(10, 60);
 
 const tabs = [
   { key: "overview", label: "Overview" },
@@ -287,32 +282,54 @@ const getLatestEvent = () => {
     minute: "2-digit",
   });
 
-  const temperature = randInt(20, 40);
-  const humidity = randInt(30, 80);
-  const moisture = randInt(40, 90);
+  const temperature = randInt(15, 40);
+  const humidity = randInt(20, 90);
+  const soilMoisture = randInt(10, 90);
+  const soilPH = Number((Math.random() * 3 + 5).toFixed(1)); // 5.0-8.0
+  const lightIntensity = randInt(1000, 80000); // lux
+  const windSpeed = randInt(0, 15); // m/s
+  const rainfall = randInt(0, 50); // mm/day
   const irrigation = Math.random() > 0.5 ? "On" : "Off";
 
-  // Dynamic message based on thresholds
-  let message = "All conditions normal 🌱";
-  if (moisture < 50) {
-    message = "💧 Water needed soon – low soil moisture";
-  } else if (temperature > 35) {
-    message = "🔥 High temperature alert – protect crops";
-  } else if (humidity < 40) {
-    message = "💨 Low humidity – monitor irrigation";
-  } else if (irrigation === "On") {
-    message = "💧 Irrigation is running";
-  }
+  const nitrogen = randInt(10, 50);
+  const phosphorus = randInt(5, 30);
+  const potassium = randInt(10, 50);
+  const fertilizerLevel = randInt(0, 100);
+
+  const cropStages = ["Seedling", "Vegetative", "Flowering", "Maturity"];
+  const cropStage = cropStages[randInt(0, cropStages.length - 1)];
+
+  // Generate dynamic message
+  const messages: string[] = [];
+  if (soilMoisture < 40) messages.push("💧 Low soil moisture");
+  if (temperature > 35) messages.push("🔥 High temperature");
+  if (humidity < 30) messages.push("💨 Low humidity");
+  if (soilPH < 5.5 || soilPH > 7.5) messages.push("⚠️ Soil pH out of range");
+  if (nitrogen < 20 || phosphorus < 10 || potassium < 15)
+    messages.push("💊 Nutrient deficiency detected");
+  if (rainfall > 30) messages.push("🌧 Heavy rainfall detected");
+  if (irrigation === "On") messages.push("💧 Irrigation running");
+
+  const message = messages.length ? messages.join(" | ") : "All conditions normal 🌱";
 
   return {
     timestamp,
     location: "19.1700 N, 73.2300 E",
     crop: "Cotton",
+    cropStage,
     soil: "Black",
     temperature,
     humidity,
-    moisture,
+    moisture: soilMoisture,
+    soilPH,
+    lightIntensity,
+    windSpeed,
+    rainfall,
     irrigation,
+    nitrogen,
+    phosphorus,
+    potassium,
+    fertilizerLevel,
     message,
   };
 };
@@ -323,10 +340,7 @@ export default function AgricultureDashboard() {
 
   // Refresh latest event every minute
   useEffect(() => {
-    const interval = setInterval(() => {
-      setLatestEvent(getLatestEvent());
-    }, 60000); // 60s
-
+    const interval = setInterval(() => setLatestEvent(getLatestEvent()), 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -338,46 +352,19 @@ export default function AgricultureDashboard() {
       <div className="bg-green-900/30 border border-green-700 rounded-lg p-5 text-green-100 shadow-md">
         <div className="flex flex-wrap justify-between items-center gap-4">
           <div>
-            <h3 className="text-lg font-semibold text-green-300">
-              🌾 Latest IoT Event
-            </h3>
+            <h3 className="text-lg font-semibold text-green-300">🌾 Latest IoT Event</h3>
             <p className="text-sm text-green-200">
-              {latestEvent.timestamp} | {latestEvent.location}
+              {latestEvent.timestamp} | {latestEvent.location} | Stage: {latestEvent.cropStage}
             </p>
           </div>
-          <div className="text-sm flex flex-wrap gap-6">
-            <p>
-              <span className="font-medium text-green-300">Crop:</span>{" "}
-              {latestEvent.crop}
-            </p>
-            <p>
-              <span className="font-medium text-green-300">Soil:</span>{" "}
-              {latestEvent.soil}
-            </p>
-            <p>
-              <span className="font-medium text-green-300">Temp:</span>{" "}
-              {latestEvent.temperature}°C
-            </p>
-            <p>
-              <span className="font-medium text-green-300">Humidity:</span>{" "}
-              {latestEvent.humidity}%
-            </p>
-            <p>
-              <span className="font-medium text-green-300">Moisture:</span>{" "}
-              {latestEvent.moisture}%
-            </p>
-            <p>
-              <span className="font-medium text-green-300">Irrigation:</span>{" "}
-              <span
-                className={`font-semibold ${
-                  latestEvent.irrigation === "On"
-                    ? "text-green-400"
-                    : "text-red-400"
-                }`}
-              >
-                {latestEvent.irrigation}
-              </span>
-            </p>
+          <div className="text-sm flex flex-wrap gap-4">
+            <p><span className="font-medium text-green-300">Crop:</span> {latestEvent.crop}</p>
+            <p><span className="font-medium text-green-300">Soil:</span> {latestEvent.soil}</p>
+            <p><span className="font-medium text-green-300">Temp:</span> {latestEvent.temperature}°C</p>
+            <p><span className="font-medium text-green-300">Humidity:</span> {latestEvent.humidity}%</p>
+            <p><span className="font-medium text-green-300">Moisture:</span> {latestEvent.moisture}%</p>
+            <p><span className="font-medium text-green-300">Soil pH:</span> {latestEvent.soilPH}</p>
+            <p><span className="font-medium text-green-300">Irrigation:</span> <span className={`font-semibold ${latestEvent.irrigation==="On"?"text-green-400":"text-red-400"}`}>{latestEvent.irrigation}</span></p>
           </div>
         </div>
         <div className="mt-2 text-green-300 italic">{latestEvent.message}</div>
@@ -386,123 +373,63 @@ export default function AgricultureDashboard() {
       {/* Gauge Charts */}
       {activeTab === "overview" && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-          <GaugeChart
-            title="Temperature"
-            value={latestEvent.temperature}
-            unit="°C"
-            min={10}
-            max={50}
-            thresholds={{ min: 20, max: 35 }}
-            height={140}
-          />
-          <GaugeChart
-            title="Humidity"
-            value={latestEvent.humidity}
-            unit="%"
-            min={0}
-            max={100}
-            thresholds={{ min: 40, max: 70 }}
-            height={140}
-          />
-          <GaugeChart
-            title="Soil Moisture"
-            value={latestEvent.moisture}
-            unit="%"
-            min={0}
-            max={100}
-            thresholds={{ min: 60, max: 85 }}
-            height={140}
-          />
+          <GaugeChart title="Temperature" value={latestEvent.temperature} unit="°C" min={10} max={50} thresholds={{min:20,max:35}} height={140}/>
+          <GaugeChart title="Humidity" value={latestEvent.humidity} unit="%" min={0} max={100} thresholds={{min:40,max:70}} height={140}/>
+          <GaugeChart title="Soil Moisture" value={latestEvent.moisture} unit="%" min={0} max={100} thresholds={{min:60,max:85}} height={140}/>
         </div>
       )}
 
       {/* Tabs */}
       <div className="flex flex-wrap gap-4 border-b border-green-700">
         {tabs.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={`py-2 px-4 text-sm font-medium rounded-t-md transition-all duration-200 ${
-              activeTab === tab.key
-                ? "bg-green-800 text-white border-b-2 border-green-500"
-                : "text-green-300 hover:text-white"
-            }`}
-          >
+          <button key={tab.key} onClick={()=>setActiveTab(tab.key)} className={`py-2 px-4 text-sm font-medium rounded-t-md transition-all duration-200 ${activeTab===tab.key?"bg-green-800 text-white border-b-2 border-green-500":"text-green-300 hover:text-white"}`}>
             {tab.label}
           </button>
         ))}
       </div>
 
-      {/* === OVERVIEW === */}
-      {activeTab === "overview" && (
+      {/* OVERVIEW Charts */}
+      {activeTab==="overview" && (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <ComponentCard title="Average Temperature (°C)">
-              <BarChartOne
-                data={temperatureData}
-                color="#F59E0B"
-                yAxisTitle="°C"
-              />
+              <BarChartOne data={temperatureData} color="#F59E0B" yAxisTitle="°C"/>
             </ComponentCard>
             <ComponentCard title="Average Humidity (%)">
-              <BarChartOne data={humidityData} color="#3B82F6" yAxisTitle="%" />
+              <BarChartOne data={humidityData} color="#3B82F6" yAxisTitle="%"/>
             </ComponentCard>
           </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <ComponentCard title="Soil Moisture (%)">
-              <BarChartOne
-                data={soilMoistureData}
-                color="#22C55E"
-                yAxisTitle="%"
-              />
+              <BarChartOne data={soilMoistureData} color="#22C55E" yAxisTitle="%"/>
             </ComponentCard>
             <ComponentCard title="Water Usage (Liters)">
-              <BarChartOne data={waterUsageData} color="#8B5CF6" yAxisTitle="L" />
+              <BarChartOne data={waterUsageData} color="#8B5CF6" yAxisTitle="L"/>
             </ComponentCard>
           </div>
         </>
       )}
 
-      {/* === SOIL & CLIMATE === */}
-      {activeTab === "soil" && (
+      {/* SOIL & CLIMATE Charts */}
+      {activeTab==="soil" && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <ComponentCard title="Soil Nutrient Levels">
-            <BarChartMultiYValues
-              categories={["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]}
-              valuesPerCategory={nutrientLevelsData}
-              yAxisTitle="ppm"
-              color={["#84CC16", "#FBBF24", "#E11D48"]}
-            />
+            <BarChartMultiYValues categories={["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]} valuesPerCategory={nutrientLevelsData} yAxisTitle="ppm" color={["#84CC16","#FBBF24","#E11D48"]}/>
           </ComponentCard>
           <ComponentCard title="Moisture Trend (7 Days)">
-            <BarChartOne
-              data={soilMoistureData}
-              color="#06B6D4"
-              yAxisTitle="%"
-            />
+            <BarChartOne data={soilMoistureData} color="#06B6D4" yAxisTitle="%"/>
           </ComponentCard>
         </div>
       )}
 
-      {/* === IRRIGATION === */}
-      {activeTab === "irrigation" && (
+      {/* IRRIGATION Charts */}
+      {activeTab==="irrigation" && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <ComponentCard title="Irrigation Events per Crop">
-            <BarChartMultiYValues
-              categories={["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]}
-              valuesPerCategory={irrigationEventsData}
-              yAxisTitle="Events"
-              color={["#10B981", "#3B82F6", "#F59E0B", "#EF4444", "#8B5CF6"]}
-            />
+            <BarChartMultiYValues categories={["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]} valuesPerCategory={irrigationEventsData} yAxisTitle="Events" color={["#10B981","#3B82F6","#F59E0B","#EF4444","#8B5CF6"]}/>
           </ComponentCard>
-
           <ComponentCard title="Water Usage Efficiency">
-            <BarChartOne
-              data={waterUsageData}
-              color="#65A30D"
-              yAxisTitle="L/hour"
-            />
+            <BarChartOne data={waterUsageData} color="#65A30D" yAxisTitle="L/hour"/>
           </ComponentCard>
         </div>
       )}
