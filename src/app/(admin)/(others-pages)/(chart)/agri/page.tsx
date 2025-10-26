@@ -287,16 +287,33 @@ const getLatestEvent = () => {
     minute: "2-digit",
   });
 
+  const temperature = randInt(20, 40);
+  const humidity = randInt(30, 80);
+  const moisture = randInt(40, 90);
+  const irrigation = Math.random() > 0.5 ? "On" : "Off";
+
+  // Dynamic message based on thresholds
+  let message = "All conditions normal 🌱";
+  if (moisture < 50) {
+    message = "💧 Water needed soon – low soil moisture";
+  } else if (temperature > 35) {
+    message = "🔥 High temperature alert – protect crops";
+  } else if (humidity < 40) {
+    message = "💨 Low humidity – monitor irrigation";
+  } else if (irrigation === "On") {
+    message = "💧 Irrigation is running";
+  }
+
   return {
     timestamp,
     location: "19.1700 N, 73.2300 E",
     crop: "Cotton",
     soil: "Black",
-    temperature: randInt(20, 40),
-    humidity: randInt(30, 80),
-    moisture: randInt(40, 90),
-    irrigation: Math.random() > 0.5 ? "On" : "Off",
-    message: "💧 Water needed in 6 hrs – low moisture",
+    temperature,
+    humidity,
+    moisture,
+    irrigation,
+    message,
   };
 };
 
