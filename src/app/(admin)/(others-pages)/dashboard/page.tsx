@@ -9,9 +9,9 @@ import DemographicCard from "@/components/ecommerce/DemographicCard";
 import AuthGuard from "@/components/auth/AuthGuard";
 
 export const metadata: Metadata = {
-  title:
-    "CELLAI",
-  description: "CELLAI",
+  title: "Solutions | Cell AI Battery Intelligence",
+  description:
+    "Explore Cell AI's solutions for EV battery management, SOC/SOH estimation, digital twin, and IoT battery analytics.",
 };
 
 export default function Ecommerce() {

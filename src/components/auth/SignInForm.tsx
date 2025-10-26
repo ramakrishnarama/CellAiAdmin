@@ -35,12 +35,23 @@ export default function SignInForm() {
     <div className="flex flex-col flex-1 lg:w-1/2 w-full">
       {/* <div className="w-full max-w-md sm:pt-10 mx-auto mb-5"></div> */}
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
+                <div className="flex justify-center mb-6">
+          <img
+            src="/images/logo/cellAi_transparent.png"
+            alt="CellAI Logo"
+            className="w-15 h-auto"
+          />
+          <p className="mt-4 text-lg font-semibold text-gray-800 dark:text-white">
+            CELL AI
+          </p>
+
+        </div>
         <div>
           <div className="">
           {/* sm:mb-8 */}
-            <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
+            {/* <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
               Sign In
-            </h1>
+            </h1> */}
             <p className="text-sm text-gray-500 dark:text-gray-400">
               {/* Enter your email and password to sign in! */}
             </p>
@@ -105,7 +116,7 @@ export default function SignInForm() {
               </div>
             </form>
 
-            <div className="mt-5">
+            {/* <div className="mt-5">
               <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
                 Don&apos;t have an account?{" "}
                 <Link
@@ -115,7 +126,7 @@ export default function SignInForm() {
                   Sign Up
                 </Link>
               </p>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

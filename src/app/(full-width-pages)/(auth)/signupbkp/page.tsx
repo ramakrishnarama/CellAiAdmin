@@ -1,4 +1,4 @@
-import SignInForm from "@/components/auth/SignInForm";
+// import SignUpForm from "@/components/auth/SignUpForm";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -7,6 +7,6 @@ export const metadata: Metadata = {
     "Explore Cell AI's solutions for EV battery management, SOC/SOH estimation, digital twin, and IoT battery analytics.",
 };
 
-export default function SignIn() {
-  return <SignInForm />;
+export default function SignUp() {
+  return //<SignUpForm />;
 }
