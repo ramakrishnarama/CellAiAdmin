@@ -375,7 +375,7 @@ export default function AgricultureDashboard() {
             unit="%"
             min={0}
             max={100}
-            thresholds={{ min: 60, max: 85 }}
+            thresholds={{ min: 40, max: 85 }}
           />
           <GaugeChart
             title="Soil pH"
