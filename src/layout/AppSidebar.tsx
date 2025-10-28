@@ -53,6 +53,11 @@ const navItems: NavItem[] = [
     //   { name: "Device", path: "/device", pro: false }
     // ]
   },
+    {
+    icon: <GridIcon />,
+    name: "DG Device Management",
+    path: "/dg"
+  },
   // {
   //   icon: <CalenderIcon />,
   //   name: "Calendar",
