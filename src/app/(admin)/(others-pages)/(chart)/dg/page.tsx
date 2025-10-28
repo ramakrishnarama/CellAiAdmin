@@ -164,9 +164,9 @@ export default function EngineDashboardTabs() {
             { title: "Apparent Power (kVA)", data: chartData.kVA, color: "#a855f7" },
             { title: "Reactive Power (kVAR)", data: chartData.kVAR, color: "#06b6d4" },
             { title: "Real Power (kW)", data: chartData.kW, color: "#ef4444" },
-          ].map((item, idx) => (
+          ].map((item) => (
             <>
-             <ComponentCard title={item.title}>
+             <ComponentCard title={item.title} >
               <LineChartOne
                   data={item.data.values.map((y, i) => [i, y])}
                   color={item.color}
