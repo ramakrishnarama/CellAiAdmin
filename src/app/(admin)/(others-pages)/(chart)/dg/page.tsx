@@ -44,7 +44,7 @@ const generatePhaseData = (max: number, min: number = 0): PhaseData => ({
 const generateStackedData = (categories: string[], min: number, max: number) =>
   categories.map((label) => ({
     name: label,
-    data: Array.from({ length: 2 }, () => randInt(min, max)),
+    data: Array.from({ length: 7 }, () => randInt(min, max)),
   }));
 
 // ------------------ Main Component ------------------
@@ -190,9 +190,9 @@ export default function EngineDashboardTabs() {
           <ComponentCard title="Voltage L1–L3 (Vac)">
             <LineChartMultiSeries
               series={[
-                { name: "L1", data: chartData.voltage.L1.values.map((y, i) => ({ x: i, y })) },
-                { name: "L2", data: chartData.voltage.L2.values.map((y, i) => ({ x: i, y })) },
-                { name: "L3", data: chartData.voltage.L3.values.map((y, i) => ({ x: i, y })) },
+                { name: "L1 - L2", data: chartData.voltage.L1.values.map((y, i) => ({ x: i, y })) },
+                { name: "L2 - L3", data: chartData.voltage.L2.values.map((y, i) => ({ x: i, y })) },
+                { name: "L3 - L1", data: chartData.voltage.L3.values.map((y, i) => ({ x: i, y })) },
               ]}
               colorPalette={["#22c55e", "#f59e0b", "#ef4444"]}
               yAxisTitle="Volts"
@@ -202,9 +202,9 @@ export default function EngineDashboardTabs() {
           <ComponentCard title="Current L1–L3 (Aac)">
             <LineChartMultiSeries
               series={[
-                { name: "L1", data: chartData.current.L1.values.map((y, i) => ({ x: i, y })) },
-                { name: "L2", data: chartData.current.L2.values.map((y, i) => ({ x: i, y })) },
-                { name: "L3", data: chartData.current.L3.values.map((y, i) => ({ x: i, y })) },
+                { name: "L1 - L2", data: chartData.current.L1.values.map((y, i) => ({ x: i, y })) },
+                { name: "L2 - L3", data: chartData.current.L2.values.map((y, i) => ({ x: i, y })) },
+                { name: "L3 - L1", data: chartData.current.L3.values.map((y, i) => ({ x: i, y })) },
               ]}
               colorPalette={["#06b6d4", "#a855f7", "#84cc16"]}
               yAxisTitle="A"
