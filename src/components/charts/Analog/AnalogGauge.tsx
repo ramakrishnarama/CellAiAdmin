@@ -109,74 +109,71 @@ import React from "react";
 import GaugeComponent from "react-gauge-component";
 
 interface GaugeProps {
-  title: string;
-  value: number;
-  min: number;
-  max: number;
-  unit?: string;
-  color?: string;
+title: string;
+value: number;
+min: number;
+max: number;
+unit?: string;
 }
 
 export default function AnalogGauge({
-  title,
-  value,
-  min,
-  max,
-  unit = "",
-  color = "#22c55e",
+title,
+value,
+min,
+max,
+unit = "",
 }: GaugeProps) {
-  return (
-    <div className="border border-blue-700 rounded-xl p-4 flex flex-col items-center text-green-200">
-      <h3 className="text-green-400 text-sm font-semibold mb-2">{title}</h3>
+const safeLimit = (limit: number) => Math.min(Math.max(limit, min), max);
 
-      <GaugeComponent
-        type="semicircle"
-        arc={{
-          width: 0.3,
-          padding: 0.02,
-          cornerRadius: 3,
-          subArcs: [
-            { limit: max * 0.2, color: "#ef4444" }, // red
-            { limit: max * 0.5, color: "#facc15" }, // yellow
-            { limit: max, color: color }, // main color
-          ],
-        }}
-        pointer={{
-          color: color,
-          length: 0.8,
-          width: 6,
-          elastic: true,
-        }}
-        labels={{
-          valueLabel: {
-            formatTextValue: (v) => `${v.toFixed(1)} ${unit}`,
-            style: { fill: "#a3e635", fontSize: "20px", fontWeight: 600 },
-          },
-          tickLabels: {
-            type: "outer",
-            defaultTickValueConfig: {
-              formatTextValue: (v) => `${Math.round(v)}`,
-              style: { fill: "#94a3b8", fontSize: "10px" },
-            },
-            ticks: [
-              { value: min },
-              { value: min + (max - min) * 0.2 },
-              { value: min + (max - min) * 0.4 },
-              { value: min + (max - min) * 0.6 },
-              { value: min + (max - min) * 0.8 },
-              { value: max },
-            ],
-          },
-        }}
-        value={value}
-        minValue={min}
-        maxValue={max}
-        style={{ width: "90%", height: "180px" }}
-      />
+return ( <div className="border border-blue-700 rounded-xl p-5 flex flex-col items-center text-green-200 bg-slate-900 shadow-lg"> 
+<h2 className="text-lg font-bold mb-3 tracking-wide text-center">{title} </h2>
 
-      <div className="text-xs text-green-300 mt-2">
-        Range: {min} → {max} {unit}
-      </div>
-    </div>
-  );
+  <GaugeComponent
+    id={`gauge-${title.replace(/\s+/g, "-").toLowerCase()}`}
+    type="semicircle"
+    arc={{
+      gradient: true,
+      width: 0.18,
+      padding: 0,
+      subArcs: [
+        { limit: safeLimit(min + (max - min) * 0.2), color: "#EA4228", showTick: true },
+        { limit: safeLimit(min + (max - min) * 0.4), color: "#F5CD19", showTick: true },
+        { limit: safeLimit(min + (max - min) * 0.6), color: "#5BE12C", showTick: true },
+        { limit: safeLimit(min + (max - min) * 0.8), color: "#F5CD19", showTick: true },
+        { color: "#EA4228" },
+      ],
+    }}
+    pointer={{
+      type: "arrow",
+      elastic: true,
+      color: "#22c55e",
+      width: 8,
+      animationDelay: 0,
+    }}
+    value={value}
+    minValue={min}
+    maxValue={max}
+    labels={{
+      valueLabel: {
+        formatTextValue: (v) => `${v.toFixed(1)} ${unit}`,
+        style: { fill: "#f8f9f6ff", fontSize: "30px", fontWeight: 700 },
+      },
+      tickLabels: {
+        type: "outer",
+        defaultTickValueConfig: {
+          formatTextValue: (v) => `${Math.round(v)}`,
+          style: { fill: "#9ca3af", fontSize: "15px" },
+        },
+      },
+    }}
+    style={{ width: "100%", height: "220px" }}
+  />
+
+  {/* <div className="text-sm text-green-300 mt-3 font-medium">
+    Range: {min} → {max} {unit}
+  </div> */}
+</div>
+
+
+);
 }
