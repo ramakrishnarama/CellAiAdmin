@@ -9,10 +9,18 @@ const LineChartOne = dynamic(() => import("@/components/charts/line/LineChartOne
 const LineChartMultiSeries = dynamic(() => import("@/components/charts/line/LineChartMultiSeries"), { ssr: false });
 const BarChartMultiYValues = dynamic(() => import("@/components/charts/bar/BarChartMultiYValues"), { ssr: false });
 
-// ------------------ Utility Generators ------------------
-
-const randInt = (min: number, max: number): number =>
-  Math.floor(Math.random() * (max - min + 1)) + min;
+// ------------------ Types ------------------
+interface EngineRecord {
+  timestamp: string;
+  hoursRun: number;
+  batteryVoltage: number;
+  engineSpeed: number;
+  engineTemp: number;
+  fuelLevel: number;
+  frequency: number;
+  engineOilPressure: number;
+  engineOilTemperature: number;
+}
 
 interface DayData {
   labels: string[];
@@ -24,6 +32,10 @@ interface PhaseData {
   L2: DayData;
   L3: DayData;
 }
+
+// ------------------ Utility Functions ------------------
+const randInt = (min: number, max: number): number =>
+  Math.floor(Math.random() * (max - min + 1)) + min;
 
 const generateDayData = (max: number, min: number = 0, days: number = 7): DayData => {
   const labels = Array.from({ length: days }, (_, i) => {
@@ -48,96 +60,112 @@ const generateStackedData = (categories: string[], min: number, max: number) =>
   }));
 
 // ------------------ Main Component ------------------
-
 export default function EngineDashboardTabs() {
   const [activeTab, setActiveTab] = useState("overview");
-
-  const [values, setValues] = useState({
-    hoursRun: 80787.55,
-    batteryVoltage: 12,
-    engineSpeed: 1000,
-    engineTemp: 30,
-    fuelLevel: 55,
-    frequency: 48.5,
+  const [values, setValues] = useState<EngineRecord>({
+    hoursRun: 0,
+    batteryVoltage: 0,
+    engineSpeed: 0,
+    engineTemp: 0,
+    fuelLevel: 0,
+    frequency: 0,
+    engineOilPressure: 0,
+    engineOilTemperature: 0,
+    timestamp: "",
   });
 
+  const [historyData, setHistoryData] = useState<EngineRecord[]>([]);
+
+  // ------------------ Fetch Real API Data ------------------
   useEffect(() => {
-    const interval = setInterval(() => {
-      setValues((prev) => ({
-        ...prev,
-        batteryVoltage: 11 + Math.random() * 2,
-        engineSpeed: 900 + Math.random() * 200,
-        engineTemp: 25 + Math.random() * 10,
-        fuelLevel: 50 + Math.random() * 10,
-        frequency: 48 + Math.random() * 2,
-      }));
-    }, 60000);
+    async function fetchEngineData() {
+      try {
+        const res = await fetch("http://52.90.158.135:4000/api/engine/000044455601/history");
+        const data = await res.json();
+
+        if (data.records && data.records.length > 0) {
+          const latest = data.records[data.records.length - 1];
+          setValues(latest);
+          setHistoryData(data.records);
+        } else {
+          console.warn("No data records found in API response");
+        }
+      } catch (err) {
+        console.error("Error fetching engine data:", err);
+      }
+    }
+
+    fetchEngineData();
+    const interval = setInterval(fetchEngineData, 60000); // refresh every 1 min
     return () => clearInterval(interval);
   }, []);
 
-  // ------------------ Chart Data ------------------
+  // ------------------ Chart Data from API History ------------------
+  const chartData = useMemo(() => {
+    if (historyData.length > 0) {
+      const labels = historyData.map((r) =>
+        new Date(r.timestamp).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
+      );
+      return {
+        voltage: { labels, values: historyData.map((r) => r.batteryVoltage) },
+        speed: { labels, values: historyData.map((r) => r.engineSpeed) },
+        temperature: { labels, values: historyData.map((r) => r.engineTemp) },
+        fuel: { labels, values: historyData.map((r) => r.fuelLevel) },
+        frequency: { labels, values: historyData.map((r) => r.frequency) },
+        hoursRun: { labels, values: historyData.map((r) => r.hoursRun) },
+        fuelUsed: generateDayData(800, 700), // still synthetic
+      };
+    }
 
-  const chartData = useMemo(
-    () => ({
-      voltage: generatePhaseData(1000, 200),
-      current: generatePhaseData(20000, 200),
-      speed: generateDayData(10000, 800),
+    // fallback random data
+    return {
+      voltage: generateDayData(15, 10),
+      speed: generateDayData(1000, 800),
       temperature: generateDayData(150, -40),
       fuel: generateDayData(100),
       frequency: generateDayData(100),
-      fuelUsed: generateDayData(800, 700),
       hoursRun: generateDayData(90000, 70000),
-    }),
-    []
-  );
+      fuelUsed: generateDayData(800, 700),
+    };
+  }, [historyData]);
 
   const stackedCategories = ["L1", "L2", "L3"];
   const genBarData = generateStackedData(stackedCategories, 200, 800);
 
   // ------------------ Render ------------------
-
   return (
     <div className="p-6 bg-slate-900 text-slate-200 min-h-screen">
       <h1 className="text-white text-3xl font-bold mb-8 text-center tracking-wide">
         ⚙️ Engine & Generator Dashboard — Real-Time + 7-Day History
       </h1>
 
-      {/* 🔹 Top Section — Gauges Left + Larger Details Right */}
+      {/* 🔹 Top Section — Gauges + Details */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
-        {/* Left — Gauges */}
+        {/* Gauges */}
         <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
           <AnalogGauge title="Battery Voltage" value={values.batteryVoltage} min={0} max={60} unit="Vdc" />
           <AnalogGauge title="Fuel Level" value={values.fuelLevel} min={0} max={100} unit="%" />
           <AnalogGauge title="Engine Speed" value={values.engineSpeed} min={0} max={10000} unit="RPM" />
           <AnalogGauge title="Engine Temperature" value={values.engineTemp} min={-40} max={150} unit="°C" />
-          <AnalogGauge title="Engine Oil Pressure" value={12.3} min={-1} max={25} unit="Bar" />
-          <AnalogGauge title="Frequency" value={values.frequency} min={0} max={100} unit="Hz" />
+          <AnalogGauge title="Engine Oil Pressure" value={values.engineOilPressure} min={0} max={25} unit="Bar" />
+          <AnalogGauge title="Engine Oil Temperature" value={values.engineOilTemperature} min={-40} max={150} unit="°C" />
         </div>
 
-        {/* Right — Details Panel */}
-        <div className="bg-slate-800 rounded-2xl p-8 border border-slate-700 h-fit shadow-2xl hover:shadow-green-700/30 transition-all duration-300">
-          <h2 className="text-white font-bold text-2xl mb-6 text-center tracking-wide">
-            Engine & Generator Details
+        {/* Details Panel */}
+        <div className="bg-slate-800 rounded-2xl p-8 border border-slate-700 shadow-2xl h-fit flex flex-col gap-8">
+          <h2 className="text-white font-semibold text-2xl mb-4 text-center tracking-wide">
+            Engine Summary
           </h2>
-
           <div className="grid grid-cols-2 gap-5 text-base">
             {[
               ["Hours Run", `${values.hoursRun.toFixed(2)} H`],
-              ["Total Fuel Used", "787.2 L"],
               ["Frequency", `${values.frequency.toFixed(1)} Hz`],
-              ["Power Factor (L1)", "0.80 PF"],
-              ["Apparent Power (L1)", "750.5 kVA"],
-              ["Reactive Power (L1)", "200.0 kVAR"],
-              ["Real Power (L1)", "604.0 kW"],
-              ["Power Factor (L2)", "0.82 PF"],
-              ["Apparent Power (L2)", "755.5 kVA"],
-              ["Reactive Power (L2)", "205.0 kVAR"],
             ].map(([label, value]) => (
               <div
                 key={label}
-                className="bg-slate-900 rounded-lg p-4 border border-slate-700 hover:border-green-500 hover:bg-slate-800/80 transition-all duration-300"
+                className="bg-slate-900 rounded-lg p-4 border border-slate-700 hover:border-green-500 transition"
               >
-                <p className="text-slate-300 text-sm tracking-wide">{label}</p>
+                <p className="text-slate-300 text-sm">{label}</p>
                 <p className="text-green-400 font-semibold text-xl mt-1">{value}</p>
               </div>
             ))}
@@ -145,8 +173,8 @@ export default function EngineDashboardTabs() {
         </div>
       </div>
 
-      {/* 🔹 Tabs */}
-      <div className="flex gap-3 border-b border-slate-700 mb-6 justify-center flex-wrap">
+      {/* Tabs */}
+      <div className="flex gap-3 border-b border-slate-700 mb-6 flex-wrap">
         {[
           { key: "overview", label: "Overview" },
           { key: "generator", label: "Generator L1–L3" },
@@ -155,7 +183,7 @@ export default function EngineDashboardTabs() {
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`py-2 px-4 text-sm font-medium rounded-t-md transition-colors duration-300 ${
+            className={`py-2 px-4 text-sm font-medium rounded-t-md transition ${
               activeTab === tab.key
                 ? "bg-slate-800 text-green-300 border-b-2 border-green-500"
                 : "text-slate-400 hover:text-green-200"
@@ -166,11 +194,11 @@ export default function EngineDashboardTabs() {
         ))}
       </div>
 
-      {/* 🔹 Overview Tab */}
+      {/* Overview Tab */}
       {activeTab === "overview" && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <ComponentCard title="Battery Voltage (Vdc)">
-            <LineChartOne data={chartData.voltage.L1.values.map((y, i) => [i, y])} color="#3b82f6" yAxisTitle="Volts" />
+            <LineChartOne data={chartData.voltage.values.map((y, i) => [i, y])} color="#3b82f6" yAxisTitle="Volts" />
           </ComponentCard>
           <ComponentCard title="Engine Speed (RPM)">
             <LineChartOne data={chartData.speed.values.map((y, i) => [i, y])} color="#f59e0b" yAxisTitle="RPM" />
@@ -184,50 +212,26 @@ export default function EngineDashboardTabs() {
         </div>
       )}
 
-      {/* 🔹 Generator L1–L3 Tab */}
+      {/* Generator Tab */}
       {activeTab === "generator" && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <ComponentCard title="Voltage L1–L3 (Vac)">
             <LineChartMultiSeries
               series={[
-                { name: "L1 - L2", data: chartData.voltage.L1.values.map((y, i) => ({ x: i, y })) },
-                { name: "L2 - L3", data: chartData.voltage.L2.values.map((y, i) => ({ x: i, y })) },
-                { name: "L3 - L1", data: chartData.voltage.L3.values.map((y, i) => ({ x: i, y })) },
+                { name: "L1 - L2", data: chartData.voltage.values.map((y, i) => ({ x: i, y })) },
+                { name: "L2 - L3", data: chartData.voltage.values.map((y, i) => ({ x: i, y })) },
+                { name: "L3 - L1", data: chartData.voltage.values.map((y, i) => ({ x: i, y })) },
               ]}
               colorPalette={["#22c55e", "#f59e0b", "#ef4444"]}
               yAxisTitle="Volts"
             />
           </ComponentCard>
-
-          <ComponentCard title="Current L1–L3 (Aac)">
-            <LineChartMultiSeries
-              series={[
-                { name: "L1 - L2", data: chartData.current.L1.values.map((y, i) => ({ x: i, y })) },
-                { name: "L2 - L3", data: chartData.current.L2.values.map((y, i) => ({ x: i, y })) },
-                { name: "L3 - L1", data: chartData.current.L3.values.map((y, i) => ({ x: i, y })) },
-              ]}
-              colorPalette={["#06b6d4", "#a855f7", "#84cc16"]}
-              yAxisTitle="A"
-            />
-          </ComponentCard>
-
-          <ComponentCard title="Generator Load (kVA per Phase)">
-            <BarChartMultiYValues
-              categories={["Day 1", "Day 2"]}
-              valuesPerCategory={genBarData}
-              yAxisTitle="kVA"
-              color={["#22c55e", "#f59e0b", "#ef4444"]}
-            />
-          </ComponentCard>
         </div>
       )}
 
-      {/* 🔹 Fuel & Runtime Tab */}
+      {/* Fuel & Runtime Tab */}
       {activeTab === "fuel" && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <ComponentCard title="Engine Total Fuel Used (L)">
-            <LineChartOne data={chartData.fuelUsed.values.map((y, i) => [i, y])} color="#f59e0b" yAxisTitle="Liters" />
-          </ComponentCard>
           <ComponentCard title="Hours Run (H)">
             <LineChartOne data={chartData.hoursRun.values.map((y, i) => [i, y])} color="#a855f7" yAxisTitle="Hours" />
           </ComponentCard>

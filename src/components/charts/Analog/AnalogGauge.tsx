@@ -155,7 +155,7 @@ return ( <div className="border border-blue-700 rounded-xl p-5 flex flex-col ite
     maxValue={max}
     labels={{
       valueLabel: {
-        formatTextValue: (v) => `${v.toFixed(1)} ${unit}`,
+        formatTextValue: (v) => `${v.toFixed(0)} ${unit}`,
         style: { fill: "#f8f9f6ff", fontSize: "30px", fontWeight: 700 },
       },
       tickLabels: {
