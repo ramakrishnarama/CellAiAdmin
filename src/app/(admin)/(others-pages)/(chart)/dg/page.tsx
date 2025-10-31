@@ -44,7 +44,7 @@ const [historyData, setHistoryData] = useState<EngineRecord[]>([]);
 useEffect(() => {
 async function fetchEngineData() {
 try {
-const res = await fetch("http://52.90.158.135:4000/api/engine/000044455601/history");
+const res = await fetch("/api/engine/000044455601/history");
 const data = await res.json();
 
 
