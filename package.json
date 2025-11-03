@@ -24,6 +24,7 @@
     "flatpickr": "^4.6.13",
     "fs": "^0.0.1-security",
     "leaflet": "^1.9.4",
+    "lucide-react": "^0.552.0",
     "moment": "^2.30.1",
     "moment-timezone": "^0.6.0",
     "next": "15.2.3",
