@@ -340,24 +340,26 @@ export default function EngineDashboardTabs() {
     );
 
   return (
-    <div className="p-6 bg-slate-900 text-slate-200 min-h-screen">
+    <div className="p-4 sm:p-6 bg-slate-900 text-slate-200 min-h-screen">
       {/* Header */}
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-white text-1xl font-bold">Serial Number — {selectedSerial}</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h1 className="text-white text-lg sm:text-xl font-bold break-all">
+          Serial Number — {selectedSerial}
+        </h1>
         <button
           onClick={() => {
             setSelectedSerial(null);
             setValues(null);
             setHistoryData([]);
           }}
-          className="px-4 py-2 bg-slate-700 text-sm rounded-md hover:bg-red-500 transition"
+          className="w-full sm:w-auto px-4 py-2 bg-slate-700 text-sm rounded-md hover:bg-red-500 transition text-center"
         >
           Change Serial
         </button>
       </div>
 
       {/* Gauges */}
-      <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-6 p-6">
+      <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 p-2 sm:p-4">
         <AnalogGauge title="Battery Voltage" value={values.batteryVoltage} min={0} max={60} unit="Vdc" />
         <AnalogGauge title="Fuel Level" value={values.fuelLevel} min={0} max={100} unit="%" />
         <AnalogGauge title="Engine Speed" value={values.engineSpeed} min={0} max={10000} unit="RPM" />
@@ -367,13 +369,13 @@ export default function EngineDashboardTabs() {
       </div>
 
       {/* Summary + Generator Phase Metrics Side by Side */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Engine Summary */}
-        <div className="bg-slate-800 rounded-2xl p-8 border border-slate-700 shadow-xl flex flex-col gap-6">
-          <h2 className="text-white font-semibold text-2xl mb-4 text-center">
+        <div className="bg-slate-800 rounded-2xl p-6 border border-slate-700 shadow-xl flex flex-col gap-4">
+          <h2 className="text-white font-semibold text-xl sm:text-2xl mb-2 text-center">
             Engine Summary
           </h2>
-          <div className="grid grid-cols-2 gap-5 text-base">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm sm:text-base">
             {[
               ["Hours Run", `${values.hoursRun.toFixed(2)} H`],
               ["Frequency", `${values.frequency.toFixed(1)} Hz`],
@@ -384,70 +386,64 @@ export default function EngineDashboardTabs() {
                 className="bg-slate-900 rounded-lg p-4 border border-slate-700 hover:border-green-500 transition"
               >
                 <p className="text-slate-300 text-sm">{label}</p>
-                <p className="text-green-400 font-semibold text-xl mt-1">{value}</p>
+                <p className="text-green-400 font-semibold text-lg sm:text-xl mt-1">{value}</p>
               </div>
             ))}
           </div>
         </div>
 
         {/* Generator Phase Metrics */}
-        <div className="bg-slate-800 rounded-2xl p-8 border border-slate-700 shadow-xl">
-          <h2 className="text-white text-2xl font-semibold mb-8 text-center tracking-wide">
+        <div className="bg-slate-800 rounded-2xl p-6 border border-slate-700 shadow-xl overflow-x-auto">
+          <h2 className="text-white text-xl sm:text-2xl font-semibold mb-4 text-center tracking-wide">
             Generator Phase Metrics (L1, L2, L3)
           </h2>
-
-          {/* Table-like Layout */}
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left border-collapse">
-              <thead>
-                <tr className="text-slate-400 border-b border-slate-700">
-                  <th className="p-3 text-base font-semibold">Metric</th>
-                  {["L1", "L2", "L3"].map((phase) => (
-                    <th
-                      key={`phase-header-${phase}`}
-                      className="p-3 text-center text-base font-semibold text-green-400"
-                    >
-                      {phase}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-
-              <tbody>
-                {[
-                  ["Power Factor", "PFR", "PF"],
-                  ["Apparent Power", "APP", "kVA"],
-                  ["Reactive Power", "RAP", "kVAR"],
-                  ["Real Power", "RLP", "kW"],
-                ].map(([label, key, unit]) => (
-                  <tr
-                    key={`metric-row-${key}`}
-                    className="border-b border-slate-700 hover:bg-slate-900/50 transition"
+          <table className="w-full text-xs sm:text-sm text-left border-collapse min-w-[400px]">
+            <thead>
+              <tr className="text-slate-400 border-b border-slate-700">
+                <th className="p-2 sm:p-3 text-sm sm:text-base font-semibold">Metric</th>
+                {["L1", "L2", "L3"].map((phase) => (
+                  <th
+                    key={`phase-header-${phase}`}
+                    className="p-2 sm:p-3 text-center font-semibold text-green-400"
                   >
-                    <td className="p-3 text-slate-300 font-medium">{label}</td>
-                    {["L1", "L2", "L3"].map((phase) => {
-                      const phaseData = values[phase as keyof EngineRecord] as PhaseMetrics;
-                      const val = phaseData?.[key as keyof PhaseMetrics] ?? 0;
-                      return (
-                        <td
-                          key={`metric-${phase}-${key}`}
-                          className="p-3 text-center text-white font-semibold"
-                        >
-                          {val.toFixed(2)} {unit}
-                        </td>
-                      );
-                    })}
-                  </tr>
+                    {phase}
+                  </th>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                ["Power Factor", "PFR", "PF"],
+                ["Apparent Power", "APP", "kVA"],
+                ["Reactive Power", "RAP", "kVAR"],
+                ["Real Power", "RLP", "kW"],
+              ].map(([label, key, unit]) => (
+                <tr
+                  key={`metric-row-${key}`}
+                  className="border-b border-slate-700 hover:bg-slate-900/50 transition"
+                >
+                  <td className="p-2 sm:p-3 text-slate-300 font-medium">{label}</td>
+                  {["L1", "L2", "L3"].map((phase) => {
+                    const phaseData = values[phase as keyof EngineRecord] as PhaseMetrics;
+                    const val = phaseData?.[key as keyof PhaseMetrics] ?? 0;
+                    return (
+                      <td
+                        key={`metric-${phase}-${key}`}
+                        className="p-2 sm:p-3 text-center text-white font-semibold"
+                      >
+                        {val.toFixed(2)} {unit}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-3 border-b border-slate-700 mb-6 flex-wrap">
+      <div className="flex flex-wrap gap-2 sm:gap-3 border-b border-slate-700 mb-4">
         {[
           { key: "overview", label: "Overview" },
           { key: "generator", label: "Generator L1–L3" },
@@ -456,16 +452,15 @@ export default function EngineDashboardTabs() {
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`py-2 px-4 text-sm font-medium rounded-t-md transition ${activeTab === tab.key
-                ? "bg-slate-800 text-green-300 border-b-2 border-green-500"
-                : "text-slate-400 hover:text-green-200"
+            className={`py-2 px-3 sm:px-4 text-xs sm:text-sm font-medium rounded-t-md transition ${activeTab === tab.key
+              ? "bg-slate-800 text-green-300 border-b-2 border-green-500"
+              : "text-slate-400 hover:text-green-200"
               }`}
           >
             {tab.label}
           </button>
         ))}
       </div>
-
       {/* Charts */}
       {activeTab === "overview" && chartData && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -478,9 +473,9 @@ export default function EngineDashboardTabs() {
           <ComponentCard title="Engine Temperature (°C)">
             <LineChartOne data={chartData.temperature} color="#ef4444" yAxisTitle="°C" />
           </ComponentCard>
-          <ComponentCard title="Fuel Level (%)">
+          {/* <ComponentCard title="Fuel Level (%)">
             <LineChartOne data={chartData.fuel} color="#84cc16" yAxisTitle="%" />
-          </ComponentCard>
+          </ComponentCard> */}
         </div>
       )}
 
