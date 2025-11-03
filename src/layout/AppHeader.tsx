@@ -88,14 +88,14 @@ const AppHeader: React.FC = () => {
               width={50}
               height={50}
               className="dark:hidden"
-              src="/images/logo/cellAi_transparent.png"
+              src="/images/logo/Cellai Logo 1 (1).png"
               alt="Logo"
             />
             <Image
               width={50}
               height={50}
               className="hidden dark:block"
-              src="/images/logo/cellAi_transparent.png"
+              src="/images/logo/Cellai Logo 1 (1).png"
               alt="Logo"
             />
           </Link>

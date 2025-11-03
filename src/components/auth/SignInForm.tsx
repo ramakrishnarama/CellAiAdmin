@@ -37,13 +37,13 @@ export default function SignInForm() {
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
                 <div className="flex justify-center mb-6">
           <img
-            src="/images/logo/cellAi_transparent.png"
+            src="/images/logo/Cellai Logo 1 (1).png"
             alt="CellAI Logo"
-            className="w-15 h-auto"
+            className="w-50 h-auto"
           />
-          <p className="mt-4 text-lg font-semibold text-gray-800 dark:text-white">
+          {/* <p className="mt-4 text-lg font-semibold text-gray-800 dark:text-white">
             CELL AI
-          </p>
+          </p> */}
 
         </div>
         <div>

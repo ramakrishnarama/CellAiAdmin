@@ -339,31 +339,31 @@ const AppSidebar: React.FC = () => {
             <>
               <Image
                 className="dark:hidden"
-                src="/images/logo/cellAi_transparent.png"
+                src="/images/logo/Cellai Logo 1 (1).png"
                 alt="Logo"
                 width={150}
                 height={40}
               />
               <Image
                 className="hidden dark:block"
-                src="/images/logo/cellAi_transparent.png"
+                src="/images/logo/Cellai Logo 1 (1).png"
                 alt="Logo"
-                width={50}
+                width={150}
                 height={50}
               />
             </>
           ) : (
             <Image
-              src="/images/logo/cellAi_transparent.png"
+              src="/images/logo/Cellai Logo 1 (1).png"
               alt="Logo"
-              width={50}
+              width={150}
               height={50}
             />
           )}
         </Link>
-          <p className="mt-2 text-lg font-semibold text-gray-800 dark:text-white">
+          {/* <p className="mt-2 text-lg font-semibold text-gray-800 dark:text-white">
             CELL AI
-          </p>
+          </p> */}
       </div>
       <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
         <nav className="mb-6">
