@@ -15,7 +15,7 @@ L.Icon.Default.mergeOptions({
 });
 
 const scooterIcon = new L.Icon({
-  iconUrl: "/images/icons/image.png",
+  iconUrl: "/images/icons/dg.jpeg",
   iconSize: [40, 40],
   iconAnchor: [20, 40],
   popupAnchor: [0, -40],
