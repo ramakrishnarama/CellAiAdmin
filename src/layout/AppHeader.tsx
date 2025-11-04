@@ -155,6 +155,13 @@ const AppHeader: React.FC = () => {
             </form>
           </div> */}
         </div>
+                    <Image
+              width={150}
+              height={200}
+              className="dark:block"
+              src="/images/logo/calixto-p.png"
+              alt="Logo"
+            />
         <div
           className={`${
             isApplicationMenuOpen ? "flex" : "hidden"

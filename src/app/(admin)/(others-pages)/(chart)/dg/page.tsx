@@ -4,7 +4,7 @@ import { Suspense, useState, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { Search } from "lucide-react";
 import ComponentCard from "@/components/common/ComponentCard";
-// import Image from "next/image";
+import Image from "next/image";
 
 const AnalogGauge = dynamic(() => import("@/components/charts/Analog/AnalogGauge"), { ssr: false });
 const LineChartOne = dynamic(() => import("@/components/charts/line/LineChartOne"), { ssr: false });
@@ -232,7 +232,14 @@ export default function EngineDashboardTabs() {
             className="flex flex-col justify-between w-64 h-36 transform transition-transform hover:scale-105 hover:shadow-2xl duration-200 rounded-2xl bg-zinc-900 text-white shadow-md p-5 dark:bg-white/[0.03]"
           >
             <div className="flex items-center justify-between">
-              <div className="text-4xl">🧰</div>
+                                          <div className="text-4xl">
+                      <Image
+                        width={80}
+                        height={80}
+                        src="/images/icons/dg.png"
+                        alt="grid"
+                      />
+                      </div>
               <div className="text-2xl font-bold text-blue-400">{total}</div>
             </div>
             <div className="text-sm sm:text-base font-medium text-gray-300 text-center mt-3">
@@ -246,7 +253,14 @@ export default function EngineDashboardTabs() {
             className="flex flex-col justify-between w-64 h-36 transform transition-transform hover:scale-105 hover:shadow-2xl duration-200 rounded-2xl bg-zinc-900 text-white shadow-md p-5 dark:bg-white/[0.03]"
           >
             <div className="flex items-center justify-between">
-              <div className="text-4xl">🔌</div>
+              <div className="text-4xl">
+                      <Image
+                        width={80}
+                        height={80}
+                        src="/images/icons/on3d.png"
+                        alt="grid"
+                      />
+                      </div>
               <div className="text-2xl font-bold text-green-400">{onCount}</div>
             </div>
             <div className="text-sm sm:text-base font-medium text-gray-300 text-center mt-3">
@@ -260,7 +274,14 @@ export default function EngineDashboardTabs() {
             className="flex flex-col justify-between w-64 h-36 transform transition-transform hover:scale-105 hover:shadow-2xl duration-200 rounded-2xl bg-zinc-900 text-white shadow-md p-5 dark:bg-white/[0.03]"
           >
             <div className="flex items-center justify-between">
-              <div className="text-4xl">⛔</div>
+                            <div className="text-4xl">
+                      <Image
+                        width={80}
+                        height={80}
+                        src="/images/icons/off3d.png"
+                        alt="grid"
+                      />
+                      </div>
               <div className="text-2xl font-bold text-red-400">{offCount}</div>
             </div>
             <div className="text-sm sm:text-base font-medium text-gray-300 text-center mt-3">
